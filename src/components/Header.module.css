@@ -1,0 +1,211 @@
+.navContainer {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: 100%;
+    animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; /* Smoother pop-in */
+}
+
+/* The actual glass bar */
+.glassBar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem; /* Tighter padding for a sleeker look */
+
+    /* Glassmorphism Effect using VARIABLES */
+    background: var(--nav-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+
+    border: 1px solid var(--nav-border);
+    box-shadow: 0 2px 4px var(--nav-shadow);
+
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Logo Styling */
+.logo {
+    font-size: 1.75rem;
+    font-weight: 800;
+    padding-left: 1rem;
+
+    /* Gradient Text */
+    background: linear-gradient(135deg, var(--logo-gradient-start), var(--logo-gradient-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    /* Prevent layout shift */
+    white-space: nowrap;
+}
+
+/* Desktop Menu Wrapper */
+.desktopMenu {
+    position: relative;
+    display: none;
+    gap: 0.25rem;
+    margin: 0 1rem;
+}
+
+@media (min-width: 768px) {
+    .desktopMenu {
+        display: flex;
+    }
+}
+
+/* Individual Links */
+.navLink {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem; /* Comfortable click area */
+    border-radius: 9999px; /* Rounded focus ring */
+
+    font-size: 0.95rem;
+    font-weight: 500;
+
+    /* Variable Colors */
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.3s ease;
+    outline: none; /* We use focus-visible instead */
+}
+
+.navLink:hover {
+    color: var(--text-main);
+}
+
+.navLink.active {
+    color: var(--nav-active-text);
+}
+
+/* Accessibility: Keyboard Focus Ring */
+.navLink:focus-visible {
+    box-shadow: 0 0 0 2px var(--nav-active-text);
+}
+
+/* The Magic Sliding Pill */
+.indicator {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    border-radius: 9999px;
+
+    /* Variable Colors */
+    background-color: var(--nav-active-bg);
+
+    z-index: 1;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1); /* Apple-style spring ease */
+    pointer-events: none;
+}
+
+/* Controls container (Theme Toggle + Mobile Menu) */
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+/* Theme Toggle & Mobile Toggle Shared Styles */
+.themeToggle,
+.mobileToggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    color: var(--text-muted);
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.themeToggle:hover,
+.mobileToggle:hover {
+    color: var(--text-main);
+    background-color: var(--nav-active-bg);
+}
+
+/* Hide Mobile Toggle on Desktop */
+@media (min-width: 768px) {
+    .mobileToggle {
+        display: none;
+    }
+}
+
+/* Mobile Dropdown Menu */
+.mobileMenu {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%) scale(0.95);
+    z-index: 1000;
+    width: 100%;
+    /* Variable Colors */
+    background: var(--nav-bg);
+    border: 1px solid var(--nav-border);
+
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 0.8rem;
+    overflow: hidden;
+    box-shadow: 0 4px 5px var(--nav-shadow);
+
+    /* Animation state */
+    max-height: 0;
+    opacity: 0;
+    /* transform: scale(0.95); */
+    transform-origin: top center;
+    transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, transform 0.3s ease;
+}
+
+.mobileMenu.open {
+    overflow: auto;
+    max-height: 500px;
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+}
+
+.mobileLink {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.4rem 0.8rem;
+
+    /* Variable Colors */
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--nav-border);
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.mobileLink:last-child {
+    border-bottom: none;
+}
+
+.mobileLink:hover {
+    background-color: var(--nav-active-bg);
+    color: var(--text-main);
+}
+
+.mobileLink.active {
+    background-color: var(--nav-active-bg);
+    color: var(--nav-active-text);
+    font-weight: 600;
+}
+
+/* Slide Down Animation */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+    }
+}

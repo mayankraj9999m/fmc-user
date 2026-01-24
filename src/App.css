@@ -1,0 +1,74 @@
+/* 2. Global Reset */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* 3. Base Typography & Theme Application */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+
+    /* APPLY THEME VARIABLES HERE */
+    background-color: var(--bg-body);
+    color: var(--text-main);
+
+    /* Smooth transition for background color change */
+    transition:
+        background-color 0.3s ease,
+        color 0.3s ease;
+
+    height: 100vh;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden; /* 🔒 stop page scrolling */
+}
+
+/* 4. Link Styling */
+a {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+/* Optional: Default hover state for non-nav links */
+a:hover {
+    color: var(--nav-active-text);
+}
+
+/* 5. Utility Classes */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    /* line-height: 1.2; */
+}
+
+p {
+    /* margin-bottom: 1rem; */
+    color: var(--text-muted); /* Use muted color for paragraphs by default */
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* 🔒 viewport lock */
+}
+
+.main {
+    flex: 1;
+    min-height: 0; /* 🔥 THIS LINE IS NON-NEGOTIABLE */
+}
