@@ -246,7 +246,8 @@
 
 /* Worker Section Wrapper */
 .workerSection {
-    padding: 0.5rem;
+    padding: 0 1rem;
+    padding-bottom: 1.5rem;
 }
 
 /* Ensure title has space below it */
@@ -265,10 +266,24 @@
     width: 100%;
 }
 
+/* Add this class for the labels */
+.inputLabel {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+    text-align: left;
+}
+
+/* Ensure form groups have spacing */
+.formGroup {
+    width: 100%;
+}
 
 .selectField {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.45rem 0.7rem;
     border: 1px solid var(--nav-border);
     background-color: var(--bg-body);
     color: var(--text-main);
@@ -294,7 +309,7 @@
 /* Input Fields */
 .inputField {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.45rem 0.7rem;
     border: 1px solid var(--nav-border);
     background-color: var(--bg-body);
     color: var(--text-main);
@@ -410,11 +425,11 @@
 
     .leftColumn {
         padding-right: 1rem;
-        border-right: 1px solid var(--nav-border);
     }
 
     .rightColumn {
         padding-left: 1rem;
+        border-left: 1px solid var(--nav-border);
     }
 
     .logoSection,

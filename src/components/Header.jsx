@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { AlertCircle, LogIn, Menu, Moon, Sun, X } from "lucide-react";
+import { AlertCircle, LogIn, Menu, Moon, Sun, X, UserCircle } from "lucide-react";
 import Link from "../router/Link";
 import { useLocation } from "../router/useLocation";
 import styles from "./Header.module.css";
@@ -8,6 +8,7 @@ import { useTheme } from "../context/ThemeContext";
 const navItems = [
     { path: "/login", label: "Login", icon: LogIn },
     { path: "/signup", label: "SignUp", icon: LogIn },
+    { path: "/profile", label: "Profile", icon: UserCircle },
     { path: "/broken", label: "404", icon: AlertCircle },
 ];
 
