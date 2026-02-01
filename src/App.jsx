@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import { ThemeProvider } from "./context/ThemeProvider";
 import Signup from "./pages/SignUp";
+import Profile from "./pages/Profile";
 
 const App = () => {
     return (
@@ -22,6 +23,10 @@ const App = () => {
 
                         <Route path="/signup">
                             <Signup />
+                        </Route>
+
+                        <Route path="/profile">
+                            <Profile />
                         </Route>
 
                         <Route path="*">

@@ -22,3 +22,4 @@ export const onboardStudent = (data) => API.post("/student/onboard", data);
 // Since we use cookies now, the backend middleware will handle verification automatically.
 export const addWorker = (data) => API.post("/admin/add-worker", data);
 export const createAdmin = (data) => API.post("/admin/create", data);
+export const getProfile = () => API.get("/profile");

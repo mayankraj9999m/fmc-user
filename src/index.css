@@ -30,6 +30,11 @@
     --bg-button-border: #dadce0;
 
     --bg-submit: rgb(3, 173, 82);
+
+    /* Loader styles */
+    --loader-bdr-color: #ce54f4;
+    --loader-bdr-after-color: #ff3d00;
+
 }
 
 [data-theme="dark"] {
@@ -58,6 +63,10 @@
     --bg-button-border: #17014f;
 
     --bg-submit: blue;
+
+    /* Loader styles */
+    --loader-bdr-color: #fff;
+    --loader-bdr-after-color: #ff3d00;
 }
 
 #root {

@@ -1,8 +1,11 @@
-import { createAdmin } from "../api";
+import { useEffect } from "react";
+import { createAdmin, getProfile } from "../api";
 // import { navigate } from "../router/navigate";
 import Link from "../router/Link";
 import styles from "./Login.module.css";
 import { useState } from "react";
+import { navigate } from "../router/navigate";
+import LoadingScreen from "./LoadingScreen";
 
 const Signup = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -19,6 +22,27 @@ const Signup = () => {
         masterKey: "",
     });
 
+    const [checking, setChecking] = useState(true);
+
+    // --- SECURE AUTH CHECK ---
+    useEffect(() => {
+        const verifySession = async () => {
+            try {
+                // If this call succeeds, the cookie is valid
+                await getProfile();
+                navigate("/profile");
+            } catch {
+                // If fails (401/403), user is not logged in. 
+                localStorage.removeItem("user");
+                localStorage.removeItem("role");
+            } finally {
+                setChecking(false);
+            }
+        };
+        verifySession();
+    }, []);
+    // -------------------------
+
     const handleAdminSignup = async (e) => {
         e.preventDefault();
         setError("");
@@ -28,7 +52,7 @@ const Signup = () => {
         try {
             await createAdmin(formData);
             setSuccessMsg("Admin Account Created! Redirecting to login...");
-            
+
             // setTimeout(() => {
             //     navigate("/login");
             // }, 2000);
@@ -42,6 +66,10 @@ const Signup = () => {
     const handleInputChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
+
+    if (checking) {
+        return <LoadingScreen message="Verifying Session..." />;
+    }
 
     return (
         <div className={styles.container}>
@@ -81,10 +109,11 @@ const Signup = () => {
                         <div className={styles.workerSection} style={{ border: "none", marginTop: 0 }}>
                             <h2 className={styles.loginTitle}>Admin Registration</h2>
                             <form className={styles.loginForm} onSubmit={handleAdminSignup}>
-                                
                                 {/* Master Key */}
                                 <div className={styles.formGroup}>
-                                    <label htmlFor="masterKey" className={styles.inputLabel}>Master Admin Key</label>
+                                    <label htmlFor="masterKey" className={styles.inputLabel}>
+                                        Master Admin Key
+                                    </label>
                                     <input
                                         id="masterKey"
                                         type="password"
@@ -100,7 +129,9 @@ const Signup = () => {
                                 {/* Name & Phone (Side by Side) */}
                                 <div className={styles.formGroup} style={{ display: "flex", gap: "10px" }}>
                                     <div style={{ flex: 1 }}>
-                                        <label htmlFor="name" className={styles.inputLabel}>Full Name</label>
+                                        <label htmlFor="name" className={styles.inputLabel}>
+                                            Full Name
+                                        </label>
                                         <input
                                             id="name"
                                             type="text"
@@ -113,7 +144,9 @@ const Signup = () => {
                                         />
                                     </div>
                                     <div style={{ flex: 1 }}>
-                                        <label htmlFor="phone" className={styles.inputLabel}>Phone Number</label>
+                                        <label htmlFor="phone" className={styles.inputLabel}>
+                                            Phone Number
+                                        </label>
                                         <input
                                             id="phone"
                                             type="text"
@@ -129,7 +162,9 @@ const Signup = () => {
 
                                 {/* Email */}
                                 <div className={styles.formGroup}>
-                                    <label htmlFor="email" className={styles.inputLabel}>Email Address</label>
+                                    <label htmlFor="email" className={styles.inputLabel}>
+                                        Email Address
+                                    </label>
                                     <input
                                         id="email"
                                         type="email"
@@ -145,7 +180,9 @@ const Signup = () => {
                                 {/* Hostel & Position (Side by Side) */}
                                 <div className={styles.formGroup} style={{ display: "flex", gap: "10px" }}>
                                     <div style={{ flex: 1 }}>
-                                        <label htmlFor="hostel_name" className={styles.inputLabel}>Select Hostel</label>
+                                        <label htmlFor="hostel_name" className={styles.inputLabel}>
+                                            Select Hostel
+                                        </label>
                                         <select
                                             id="hostel_name"
                                             name="hostel_name"
@@ -159,7 +196,9 @@ const Signup = () => {
                                         </select>
                                     </div>
                                     <div style={{ flex: 1 }}>
-                                        <label htmlFor="position" className={styles.inputLabel}>Position</label>
+                                        <label htmlFor="position" className={styles.inputLabel}>
+                                            Position
+                                        </label>
                                         <input
                                             id="position"
                                             type="text"
@@ -175,7 +214,9 @@ const Signup = () => {
 
                                 {/* Password */}
                                 <div className={styles.formGroup}>
-                                    <label htmlFor="password" className={styles.inputLabel}>Password</label>
+                                    <label htmlFor="password" className={styles.inputLabel}>
+                                        Password
+                                    </label>
                                     <input
                                         id="password"
                                         type="password"

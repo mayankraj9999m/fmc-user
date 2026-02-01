@@ -1,8 +1,10 @@
 import { useGoogleLogin } from "@react-oauth/google";
-import { googleAuth, loginUser } from "../api"; 
+import { getProfile, googleAuth, loginUser } from "../api";
 import { navigate } from "../router/navigate";
 import styles from "./Login.module.css";
 import { useState } from "react";
+import { useEffect } from "react";
+import LoadingScreen from "./LoadingScreen";
 
 const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -12,6 +14,28 @@ const Login = () => {
     const [staffEmail, setStaffEmail] = useState("");
     const [staffPassword, setStaffPassword] = useState("");
     const [role, setRole] = useState("worker");
+
+    const [checking, setChecking] = useState(true);
+
+    // --- SECURE AUTH CHECK ---
+    useEffect(() => {
+        const verifySession = async () => {
+            try {
+                // If this call succeeds, the cookie is valid
+                await getProfile();
+                navigate("/profile");
+            } catch {
+                // If fails (401/403), user is not logged in.
+                localStorage.removeItem("user");
+                localStorage.removeItem("role");
+            } finally {
+                setChecking(false);
+            }
+        };
+
+        verifySession();
+    }, []);
+    // -------------------------
 
     // Student login using Gmail of NIT Delhi only
     const login = useGoogleLogin({
@@ -52,6 +76,10 @@ const Login = () => {
         }
     };
 
+    if (checking) {
+        return <LoadingScreen message="Verifying Session..." />;
+    }
+
     return (
         <div className={styles.container}>
             <div className={styles.card}>
@@ -67,7 +95,8 @@ const Login = () => {
                         </div>
                         {error && (
                             <div className={styles.errorMessage}>
-                                <span className={styles.errorIcon}>⚠️</span>{error}
+                                <span className={styles.errorIcon}>⚠️</span>
+                                {error}
                             </div>
                         )}
                     </div>
@@ -89,9 +118,10 @@ const Login = () => {
                             <h2 className={styles.loginTitle}>Staff Login</h2>
 
                             <form className={styles.loginForm} onSubmit={handleStaffLogin}>
-                                
                                 <div className={styles.formGroup}>
-                                    <label htmlFor="role" className={styles.inputLabel}>Select Role</label>
+                                    <label htmlFor="role" className={styles.inputLabel}>
+                                        Select Role
+                                    </label>
                                     <select
                                         id="role"
                                         name="role"
@@ -106,7 +136,9 @@ const Login = () => {
                                 </div>
 
                                 <div className={styles.formGroup}>
-                                    <label htmlFor="email" className={styles.inputLabel}>Email Address</label>
+                                    <label htmlFor="email" className={styles.inputLabel}>
+                                        Email Address
+                                    </label>
                                     <input
                                         id="email"
                                         type="email"
@@ -122,7 +154,9 @@ const Login = () => {
                                 </div>
 
                                 <div className={styles.formGroup}>
-                                    <label htmlFor="password" className={styles.inputLabel}>Password</label>
+                                    <label htmlFor="password" className={styles.inputLabel}>
+                                        Password
+                                    </label>
                                     <input
                                         id="password"
                                         type="password"
@@ -138,7 +172,9 @@ const Login = () => {
                                 </div>
 
                                 <button type="submit" className={styles.submitBtn} disabled={isLoading}>
-                                    {isStaffLogging ? "Verifying..." : "Login as " + (role === 'admin' ? "Admin" : "Worker")}
+                                    {isStaffLogging
+                                        ? "Verifying..."
+                                        : "Login as " + (role === "admin" ? "Admin" : "Worker")}
                                 </button>
                             </form>
                         </div>
