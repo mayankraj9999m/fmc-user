@@ -1,9 +1,8 @@
-import { useGoogleLogin } from "@react-oauth/google"; // Import the hook
-import { googleAuth } from "../api";
+import { useGoogleLogin } from "@react-oauth/google";
+import { googleAuth, loginUser } from "../api"; // Ensure loginUser is imported
 import { navigate } from "../router/navigate";
 import styles from "./Login.module.css";
 import { useState } from "react";
-import axios from "axios"; // You likely need axios to fetch user info
 
 const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -12,33 +11,23 @@ const Login = () => {
     // State for Worker/Admin Login
     const [workerEmail, setWorkerEmail] = useState("");
     const [workerPassword, setWorkerPassword] = useState("");
+    const [role, setRole] = useState("worker"); // Default to worker
 
-    // Initialize the hook for custom login
+    // Google Login Hook (Student)
     const login = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
             try {
                 setIsLoading(true);
                 setError("");
+                
+                // Fetch basic google info if needed, or just send token to backend
+                // const userInfo = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", ...);
 
-                // 1. Get User Info using the access token from Google
-                const userInfo = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
-                    headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-                });
-
-                console.log("User Info from Google:", userInfo.data);
-
-                // 2. Send this data to your backend
-                // NOTE: You might need to update your googleAuth api to accept
-                // the access_token or the userInfo object instead of the 'credential' string.
                 const { data } = await googleAuth(tokenResponse.access_token);
-
-                // ... OR if your backend specifically needs the user data:
-                // const { data } = await googleAuth(userInfo.data);
-
-                console.log("Backend Response:", data);
 
                 // Store user info
                 localStorage.setItem("user", JSON.stringify(data.user));
+                localStorage.setItem("role", "student");
 
                 if (data.needsOnboarding) {
                     navigate("/onboard");
@@ -48,36 +37,47 @@ const Login = () => {
             } catch (error) {
                 const errorMessage = error.response?.data?.error || "Login Failed";
                 setError(errorMessage);
-                console.error("Login Error:", errorMessage);
             } finally {
                 setIsLoading(false);
             }
         },
         onError: () => {
             setError("Google Login Failed");
-            console.log("Login Failed");
         },
     });
 
     // Handle Worker/Admin Login
-    const handleWorkerLogin = async (e) => {
+    const handleStaffLogin = async (e) => {
         e.preventDefault();
         setError("");
         setIsLoading(true);
 
         try {
-            console.log("Logging in worker...", workerEmail, workerPassword);
+            console.log(`Logging in as ${role}...`, workerEmail);
 
-            // TODO: Replace with your actual backend API call
-            // const { data } = await workerAuth({ email: workerEmail, password: workerPassword });
+            // Send email, password, AND role to backend
+            const { data } = await loginUser({ 
+                email: workerEmail, 
+                password: workerPassword,
+                role: role 
+            });
 
-            // For now, simulate a delay
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            console.log("Login Success", data);
 
-            // localStorage.setItem("user", JSON.stringify(data.user));
-            // navigate("/worker-dashboard");
+            // Store user info
+            localStorage.setItem("user", JSON.stringify(data.user));
+            localStorage.setItem("role", data.role);
+
+            // Navigate based on role
+            if (data.role === "admin") {
+                navigate("/admin/dashboard");
+            } else {
+                navigate("/worker/dashboard");
+            }
+
         } catch (err) {
-            setError("Invalid credentials. Please try again.");
+            const msg = err.response?.data?.error || "Invalid credentials. Please try again.";
+            setError(msg);
         } finally {
             setIsLoading(false);
         }
@@ -111,23 +111,33 @@ const Login = () => {
                     <div className={styles.rightColumn}>
                         <div className={styles.loginSection}>
                             <h2 className={styles.loginTitle}>Student Login</h2>
-
                             <button className={styles.googleBtn} onClick={() => login()} disabled={isLoading}>
                                 <div className={styles.googleIconWrapper}>
-                                    <img className={styles.googleIcon} src="google.svg" />
+                                    <img className={styles.googleIcon} src="google.svg" alt="G" />
                                 </div>
                                 <span className={styles.btnText}>
-                                    {!isLoading ? "Sign in with Google" : "Verifying your account..."}
+                                    {!isLoading ? "Sign in with Google" : "Verifying..."}
                                 </span>
                             </button>
-
-                            {/* {isLoading && <div className={styles.loadingMessage}>Verifying your account...</div>} */}
                         </div>
 
                         <div className={styles.workerSection}>
-                            <h2 className={styles.loginTitle}>Worker/Admin Login</h2>
+                            <h2 className={styles.loginTitle}>Staff Login</h2>
 
-                            <form className={styles.loginForm} onSubmit={handleWorkerLogin}>
+                            <form className={styles.loginForm} onSubmit={handleStaffLogin}>
+                                {/* Role Selection Dropdown */}
+                                <div className={styles.formGroup}>
+                                    <select
+                                        className={styles.selectField}
+                                        value={role}
+                                        onChange={(e) => setRole(e.target.value)}
+                                        disabled={isLoading}
+                                    >
+                                        <option value="worker">Worker</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                </div>
+
                                 <div className={styles.formGroup}>
                                     <input
                                         type="email"
@@ -151,7 +161,7 @@ const Login = () => {
                                     />
                                 </div>
                                 <button type="submit" className={styles.submitBtn} disabled={isLoading}>
-                                    {isLoading ? "Verifying..." : "Login"}
+                                    {isLoading ? "Verifying..." : "Login as " + (role === 'admin' ? "Admin" : "Worker")}
                                 </button>
                             </form>
                         </div>
@@ -162,7 +172,6 @@ const Login = () => {
                     <p className={styles.footerText}>©️ Fix My Campus</p>
                 </div>
             </div>
-
             <div className={styles.bgDecoration}></div>
         </div>
     );

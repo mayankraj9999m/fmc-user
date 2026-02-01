@@ -7,6 +7,7 @@ import { useTheme } from "../context/ThemeContext";
 
 const navItems = [
     { path: "/login", label: "Login", icon: LogIn },
+    { path: "/signup", label: "SignUp", icon: LogIn },
     { path: "/broken", label: "404", icon: AlertCircle },
 ];
 

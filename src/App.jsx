@@ -28,6 +28,7 @@ import "./App.css";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import { ThemeProvider } from "./context/ThemeProvider";
+import Signup from "./pages/SignUp";
 
 const App = () => {
     return (
@@ -38,6 +39,10 @@ const App = () => {
                     <Routes>
                         <Route path="/login">
                             <Login />
+                        </Route>
+
+                        <Route path="/signup">
+                            <Signup />
                         </Route>
 
                         <Route path="*">

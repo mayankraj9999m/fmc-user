@@ -1,4 +1,3 @@
-import React from "react";
 import Link from "../router/Link";
 
 const NotFound = () => {
@@ -6,7 +5,7 @@ const NotFound = () => {
         <div style={{ textAlign: "center", color: "red" }}>
             <h1>404</h1>
             <p>Page not found.</p>
-            <Link href="/">Go back home</Link>
+            <Link href="/login">Go back to login</Link>
         </div>
     );
 };
