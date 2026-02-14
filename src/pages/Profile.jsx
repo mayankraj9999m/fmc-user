@@ -126,10 +126,10 @@ const Profile = () => {
     );
 };
 
-const InfoItem = ({ icon, label, value, fullWidth }) => (
+const InfoItem = ({ icon: Icon, label, value, fullWidth }) => (
     <div className={`${styles.infoItem} ${fullWidth ? styles.fullWidth : ''}`}>
         <div className={styles.iconBox}>
-            {icon && icon({ size: 20 })}
+            {Icon && <Icon size={20} />}
         </div>
         <div className={styles.infoText}>
             <span className={styles.label}>{label}</span>
