@@ -1,40 +1,35 @@
-import Header from "./components/Header";
-import Route from "./router/Route";
-import Routes from "./router/Routes";
 import "./App.css";
 
 // Pages
-import NotFound from "./pages/NotFound";
-import Login from "./pages/Login";
 import { ThemeProvider } from "./context/ThemeProvider";
-import Signup from "./pages/SignUp";
-import Profile from "./pages/Profile";
+
+import { createBrowserRouter } from "react-router";
+import { RouterProvider } from "react-router/dom";
+import RootLayout from "./layouts/RootLayout.jsx";
+import NotFound from "./components/NotFound.jsx";
+
+const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <RootLayout />,
+        children: [
+            {
+                index: true,
+                element: <div>Home</div>,
+            },
+            // {
+            //     path: "about",
+            //     element: <About />,
+            // },
+            { path: "*", element: <NotFound /> },
+        ],
+    },
+]);
 
 const App = () => {
     return (
         <ThemeProvider>
-            <div className="app">
-                <Header />
-                <main className="main">
-                    <Routes>
-                        <Route path="/login">
-                            <Login />
-                        </Route>
-
-                        <Route path="/signup">
-                            <Signup />
-                        </Route>
-
-                        <Route path="/profile">
-                            <Profile />
-                        </Route>
-
-                        <Route path="*">
-                            <NotFound />
-                        </Route>
-                    </Routes>
-                </main>
-            </div>
+            <RouterProvider router={router} />
         </ThemeProvider>
     );
 };

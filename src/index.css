@@ -1,72 +1,20 @@
 :root {
-    /* Light Mode Colors */
-    --bg-body: #f8f9fa;
-    --text-main: #1e293b;
-    --text-muted: #64748b;
+    /* HEADER */
+    --nav-bg: white;
+    --nav-border: rgb(33, 33, 120);
+    --nav-shadow: rgb(237, 237, 237);
+    --nav-active-bg: rgb(213, 236, 255);
+    --text-menu: rgba(0, 0, 0, 0.696);
+    --text-menu-active: rgb(33, 33, 120);
+    --text-menu-hover: rgb(0, 109, 198);
+    --nav-hover-bg: rgba(191, 228, 255, 0.315);
+    --mobile-menu-bg: white;
 
-    /* Navbar Colors */
-    --nav-bg: rgba(255, 255, 255, 0.85);
-    --nav-border: rgba(0, 0, 0, 0.15);
-    --nav-shadow: rgba(0, 0, 0, 0.1);
-    --nav-active-bg: #eff6ff; /* Light Blue */
-    --nav-active-text: #2563eb; /* Blue */
-
-    /* Logo Gradient */
-    --logo-gradient-start: #2563eb;
-    --logo-gradient-end: #9333ea;
-
-    --close: rgb(255, 8, 8);
-
-    --code-bg: black;
-    --code-color: white;
-
-    /* Error messages */
-    --error-bg: rgba(255, 168, 168, 0.34);
-    --error-color: #ff0000;
-
-    /* Login buttons */
-    --bg-button: white;
-    --bg-button-hover: rgb(245, 249, 252);
-    --bg-button-border: #dadce0;
-
-    --bg-submit: rgb(3, 173, 82);
-
-    /* Loader styles */
-    --loader-bdr-color: #ce54f4;
-    --loader-bdr-after-color: #ff3d00;
-
+    --padding-horizontal: 0.5rem;
 }
 
 [data-theme="dark"] {
-    /* Dark Mode Overrides */
-    --bg-body: #0f172a; /* Dark Slate */
-    --text-main: #f1f5f9;
-    --text-muted: #94a3b8;
 
-    /* Navbar Colors (Dark Glass) */
-    --nav-bg: rgba(15, 23, 42, 0.8);
-    --nav-border: rgba(255, 255, 255, 0.1);
-    --nav-shadow: rgba(0, 0, 0, 0.4);
-    --nav-active-bg: rgba(59, 130, 246, 0.2); /* Transparent Blue */
-    --nav-active-text: #60a5fa; /* Lighter Blue */
-
-    --code-bg: rgb(255, 235, 196);
-    --code-color: black;
-
-    /* Error messages */
-    --error-bg: rgba(140, 24, 24, 0.34);
-    --error-color: #ff0000;
-
-    /* Login buttons */
-    --bg-button: black;
-    --bg-button-hover: rgb(5, 61, 107);
-    --bg-button-border: #17014f;
-
-    --bg-submit: blue;
-
-    /* Loader styles */
-    --loader-bdr-color: #fff;
-    --loader-bdr-after-color: #ff3d00;
 }
 
 #root {
