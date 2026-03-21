@@ -7,7 +7,7 @@ const NotFound = () => {
         <div className={styles.container}>
             <div className={styles.card}>
                 <div className={styles.iconWrapper}>
-                    <AlertTriangle size={64} className={styles.warningIcon} />
+                    <AlertTriangle className={styles.warningIcon} />
                 </div>
                 
                 <h1 className={styles.errorCode}>404</h1>
