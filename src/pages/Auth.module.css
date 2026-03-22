@@ -1,0 +1,198 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100%;
+    background-color: var(--container-bg);
+    padding: var(--padding-horizontal);
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 1rem;
+    height: fit-content;
+    
+    /* Glassmorphism from your theme */
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--nav-border);
+    border-radius: 8px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-title);
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    line-height: 1.2;
+}
+
+/* Tabs for switching between Student and Staff */
+.tabContainer {
+    display: flex;
+    background: var(--tab-container);
+    border-radius: 8px;
+    padding: 0.25rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.activePill {
+    position: absolute;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    border-radius: 6px;
+    background-color: var(--nav-border);
+    box-shadow: 0 2px 4px var(--nav-shadow);
+    z-index: 1;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    pointer-events: none;
+}
+
+.tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem;
+    border: none;
+    background: transparent;
+    color: var(--text-light);
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    transition: color 0.2s ease;
+}
+
+.tab.active {
+    /* Background and shadow removed because the sliding pill handles it now */
+    color: var(--text-tab);
+}
+
+/* Form Elements */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.label {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.inputIcon {
+    position: absolute;
+    left: 1rem;
+    color: var(--text-light);
+}
+
+.input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    border: 0.5px solid var(--nav-border);
+    border-radius: 4px;
+    background: transparent;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--nav-active-bg);
+}
+
+.submitBtn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.8rem;
+    margin-top: 0.5rem;
+    border: none;
+    border-radius: 8px;
+    background: var(--text-menu-active);
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.submitBtn:hover {
+    background: var(--button-hover);
+}
+
+.googleBtn {
+    background: white;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.googleBtn:hover {
+    background: #f7f7f7;
+    color: #333;
+}
+
+.notice {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--nav-active-bg);
+    border-left: 4px solid var(--text-menu-active);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: var(--text-main);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tablet */
+@media (min-width: 640px) {
+    .container {
+        padding: 2rem;
+    }
+    .card {
+        width: 450px;
+    }
+}
+
+/* Laptop */
+@media (min-width: 1024px) {
+}
+
+/* Desktop */
+@media (min-width: 1280px) {
+}

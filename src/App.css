@@ -9,8 +9,8 @@
 
 /* 3. Base Typography & Theme Application */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    line-height: 1.6;
+    font-family: "Outfit", sans-serif;
+    font-optical-sizing: auto;
     -webkit-font-smoothing: antialiased;
 
     /* APPLY THEME VARIABLES HERE */
@@ -29,7 +29,7 @@ html,
 body {
     height: 100%;
     margin: 0;
-    overflow: hidden; /* 🔒 stop page scrolling */
+    /* overflow: hidden;     */
 }
 
 /* 4. Link Styling */

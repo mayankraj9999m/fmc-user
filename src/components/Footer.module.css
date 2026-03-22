@@ -1,0 +1,145 @@
+.footer {
+    background-color: var(--footer-bg);
+    border-top: 1px solid var(--footer-border);
+    color: var(--footer-text);
+    padding: 3rem var(--padding-horizontal) 1rem;
+    margin-top: auto;
+    transition: background-color 0.3s ease;
+}
+
+.container {
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+/* --- Top Section Grid --- */
+.topSection {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    margin-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+    .topSection {
+        grid-template-columns: 2fr 1fr 1fr;
+    }
+}
+
+/* --- Columns --- */
+.brandCol {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.logoWrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Slightly more gap to accommodate the circle */
+}
+
+.logo {
+    height: 60px;
+    width: 60px;
+    background-color: white;
+    border-radius: 50%;
+    padding: 4px;
+    object-fit: contain;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.brandName {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--footer-text);
+    margin: 0;
+}
+
+.brandDesc {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--footer-text-muted);
+    max-width: 400px;
+}
+
+.colTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--footer-text);
+    margin-bottom: 1.2rem;
+}
+
+/* --- Lists (Links & Contact) --- */
+.linkList,
+.contactList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.linkList a,
+.contactList a,
+.contactList li {
+    color: var(--footer-text-muted);
+    font-size: 0.95rem;
+    transition: color 0.2s ease;
+    text-decoration: none;
+}
+
+.contactList li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    line-height: 1.5;
+}
+
+.linkList a:hover,
+.contactList a:hover {
+    color: var(--footer-text);
+    text-decoration: underline;
+}
+
+.icon {
+    color: var(--footer-text); /* Icons become bright white */
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+/* --- Bottom Section --- */
+.bottomSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--footer-border);
+    text-align: center;
+}
+
+.copyright,
+.lastUpdated {
+    font-size: 0.85rem;
+    color: var(--footer-text-muted);
+    margin: 0;
+}
+
+/* TABLET */
+@media (min-width: 768px) {
+    .bottomSection {
+        flex-direction: row;
+        justify-content: space-between;
+        text-align: left;
+    }
+}
+
+/* Laptop */
+@media (min-width: 1024px) {
+}
+
+/* Desktop */
+@media (min-width: 1280px) {
+}

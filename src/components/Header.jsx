@@ -77,7 +77,7 @@ const Header = () => {
             <nav className={styles.navContainer} ref={headerRef}>
                 <div className={styles.glassBar}>
                     <Link to="/" >
-                        <img src="logo.jpg" alt="site logo" className={styles.logo}></img>
+                        <img src="/logo.jpg" alt="site logo" className={styles.logo}></img>
                     </Link>
 
                     <div style={{display: "flex"}}>

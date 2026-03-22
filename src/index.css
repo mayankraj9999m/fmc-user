@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Outfit:wght@100..900&family=Roboto+Slab:wght@100..900&family=Science+Gothic:wght@100..900&display=swap');
+
 :root {
     /* HEADER */
     --nav-bg: white;
@@ -10,7 +12,22 @@
     --nav-hover-bg: rgba(191, 228, 255, 0.315);
     --mobile-menu-bg: white;
 
-    --padding-horizontal: 0.5rem;
+    --padding-horizontal: 1rem;
+
+    /* AUTH */
+    --container-bg: rgb(251, 251, 251);
+    --tab-container: rgb(247, 253, 255);
+    --card-bg: rgb(255, 255, 255);
+    --text-title: rgb(33, 33, 120);
+    --text-light: rgba(0, 0, 0, 0.727);
+    --text-tab: white;
+    --button-hover: rgb(47, 47, 196);
+
+    /* FOOTER */
+    --footer-bg: rgb(33, 33, 120);
+    --footer-text: #ffffff;
+    --footer-text-muted: rgba(255, 255, 255, 0.75);
+    --footer-border: rgba(255, 255, 255, 0.15);
 }
 
 [data-theme="dark"] {

@@ -1,13 +1,15 @@
+// src/api.js
 import axios from "axios";
 
-// Create Axios instance with credentials enabled
 const API = axios.create({ 
     baseURL: import.meta.env.VITE_API_URL,
-    withCredentials: true // <--- CRITICAL: allows cookies to be sent/received
+    withCredentials: true 
 });
 
-// 1. Google Auth (Students)
-export const googleAuth = (token) => API.post("/auth/google", { token });
+// 1. Google Auth (Students) - Now expects an Authorization Code
+export const googleAuth = (code) => API.post("/auth/google", { code });
+
+// ... the rest of your api.js remains unchanged
 
 // 2. Email/Password Auth (Workers & Admins)
 export const loginUser = (credentials) => API.post("/auth/login", credentials); // credentials = { email, password }
