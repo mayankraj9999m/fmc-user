@@ -1,0 +1,35 @@
+.detailItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.iconWrapper {
+    color: var(--text-menu-active);
+    background: var(--body-bg);
+    padding: 0.6rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.detailContent {
+    display: flex;
+    flex-direction: column;
+}
+
+.detailLabel {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.2rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detailValue {
+    font-size: 1rem;
+    color: var(--text-main);
+    font-weight: 600;
+}

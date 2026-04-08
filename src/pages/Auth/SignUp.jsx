@@ -1,23 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UserCircle, BadgeIcon as IdCard } from "lucide-react";
-import { onboardStudent } from "../api";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import styles from "./Auth.module.css";
+import { useAuth } from "../../context/AuthContext";
 
 const SignUp = () => {
     const [rollNumber, setRollNumber] = useState("");
+    const { user, loading } = useAuth();
+    const navigate = useNavigate();
 
-    const handleOnboard = async (e) => {
-        e.preventDefault();
-        try {
-            // Triggers the onboarding process for a student already in the DB
-            const response = await onboardStudent({ rollNumber });
-            console.log("Onboarding initialized", response.data);
-            // Typically followed by Google OAuth verification
-        } catch (error) {
-            console.error("Onboarding failed", error);
+    useEffect(() => {
+        if (!loading && user) {
+            navigate("/", { replace: true });
         }
-    };
+    }, [user, loading, navigate]);
 
     return (
         <div className={styles.container}>
@@ -27,7 +23,7 @@ const SignUp = () => {
                     <p className={styles.subtitle}>Verify your hosteller status to begin.</p>
                 </div>
 
-                <form className={styles.form} onSubmit={handleOnboard}>
+                <form className={styles.form}>
                     <div className={styles.notice} style={{ marginTop: 0, marginBottom: "1rem" }}>
                         Your account has already been provisioned by the Junior Assistant based on the official allotment records. Please enter your Roll Number to activate your profile.
                     </div>

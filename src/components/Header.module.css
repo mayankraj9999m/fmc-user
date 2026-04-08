@@ -185,3 +185,50 @@
 /* Desktop */
 @media (min-width: 1280px) {
 }
+
+/* --- NEW: User Info & Logout Styles --- */
+.userInfo {
+    display: none; /* Hidden on mobile by default */
+    align-items: center;
+    gap: 1rem;
+    margin: 0 1rem;
+    padding-left: 1rem;
+    border-left: 1px solid var(--nav-border);
+}
+
+.userName {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-main);
+}
+
+.mobileUserInfo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem var(--padding-horizontal);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-title);
+    border-bottom: 1px solid var(--nav-shadow);
+    background-color: rgb(226, 233, 255);
+}
+
+.mobileUserInfo .email {
+    color: var(--text-menu-hover);
+    font-weight: 400;
+    font-style: italic;
+}
+
+/* Tablet & Up Adjustments */
+@media (min-width: 768px) {
+    .desktopMenu {
+        display: flex;
+    }
+    .mobileToggle {
+        display: none;
+    }
+    .userInfo {
+        display: flex; /* Show user info on desktop */
+    }
+}

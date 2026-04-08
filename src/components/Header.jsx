@@ -1,22 +1,19 @@
 import { useState, useEffect, useRef } from "react";
 // 1. Import React Router components and hooks
-import { Link, useLocation } from "react-router"; 
-import { AlertCircle, LogIn, Menu, Moon, Sun, X, UserCircle, House } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router";
+import { AlertCircle, LogIn, Menu, Moon, Sun, X, UserCircle, House, LogOut, Shield, Users } from "lucide-react";
 import styles from "./Header.module.css";
 import { useTheme } from "../context/ThemeContext";
-
-const navItems = [
-    { path: "/", label: "Home", icon: House},
-    { path: "/login", label: "Login", icon: LogIn },
-    { path: "/signup", label: "SignUp", icon: LogIn },
-    { path: "/profile", label: "Profile", icon: UserCircle },
-    { path: "/broken", label: "404", icon: AlertCircle },
-];
+import { useAuth } from "../context/AuthContext";
+import { logoutUser } from "../api";
+import { Button } from "./Buttons/Button";
 
 const Header = () => {
     const { theme, toggleTheme } = useTheme();
+    const { user, role, logout } = useAuth();
     const location = useLocation(); // 2. Hook to get current URL state
-    
+    const navigate = useNavigate();
+
     const [isMobileOpen, setIsMobileOpen] = useState(false);
     const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
     const [headerHeight, setHeaderHeight] = useState(0);
@@ -24,10 +21,32 @@ const Header = () => {
     const tabsRef = useRef({});
     const headerRef = useRef(null);
 
+    // --- Dynamically generate Nav Items based on Auth State ---
+    const navItems = [
+        { path: "/", label: "Home", icon: House },
+        ...(user
+            ? [{ path: "/profile", label: "Profile", icon: UserCircle }]
+            : [
+                  { path: "/login", label: "Login", icon: LogIn },
+                  { path: "/signup", label: "SignUp", icon: LogIn },
+              ]),
+        // General Students Dashboard visible to admins
+        ...(user && role === "admin"
+            ? [{ path: "/admin/student-dashboard", label: "Students Dashboard", icon: Users }] 
+            : []),
+        // NEW: Chief Warden strictly visible only to Chief Warden
+        ...(user && role === "admin" && user.position === "Chief Warden"
+            ? [{ path: "/admin/chiefwarden-dashboard", label: "Chief Warden", icon: Shield }]
+            : []),
+        ...(user && role === "admin" && (user.position === "Hostel Warden" || user.position === "Associate Warden")
+            ? [{ path: "/admin/warden-dashboard", label: "Warden", icon: Shield }]
+            : []),
+    ];
+
     // --- 1. Path Logic (Now using React Router's location) ---
     const getActivePath = () => {
         const currentPath = location.pathname;
-        
+
         const foundItem = navItems.find((item) => {
             if (item.path === "/") return currentPath === "/";
             return currentPath === item.path || currentPath.startsWith(item.path + "/");
@@ -37,6 +56,18 @@ const Header = () => {
     };
 
     const activePath = getActivePath();
+
+    // --- Logout Handler ---
+    const handleLogout = async () => {
+        try {
+            await logoutUser();
+        } catch (error) {
+            console.error("Failed to clear cookie on server", error);
+        }
+        logout(); // Clear React context
+        setIsMobileOpen(false);
+        navigate("/login");
+    };
 
     // --- 2. Sliding Indicator Logic ---
     useEffect(() => {
@@ -49,7 +80,7 @@ const Header = () => {
                     opacity: 1,
                 });
             } else {
-                setIndicatorStyle(prev => ({ ...prev, opacity: 0 }));
+                setIndicatorStyle((prev) => ({ ...prev, opacity: 0 }));
             }
         };
 
@@ -76,11 +107,11 @@ const Header = () => {
         <>
             <nav className={styles.navContainer} ref={headerRef}>
                 <div className={styles.glassBar}>
-                    <Link to="/" >
+                    <Link to="/">
                         <img src="/logo.jpg" alt="site logo" className={styles.logo}></img>
                     </Link>
 
-                    <div style={{display: "flex"}}>
+                    <div style={{ display: "flex" }}>
                         <div className={styles.desktopMenu}>
                             <div
                                 className={styles.indicator}
@@ -108,6 +139,18 @@ const Header = () => {
                         </div>
 
                         <div className={styles.controls}>
+                            {/* --- User Name & Logout (Desktop) --- */}
+                            {user && (
+                                <div className={styles.userInfo}>
+                                    <span className={styles.userName}>
+                                        Hi, {user.name.split(" ")[0]} {/* Shows first name */}
+                                    </span>
+                                    <Button variant="secondary" onClick={() => handleLogout()} danger={true}>
+                                        <LogOut size={16} />
+                                        Logout
+                                    </Button>
+                                </div>
+                            )}
                             <button className={styles.themeToggle} onClick={toggleTheme} aria-label="Toggle Dark Mode">
                                 {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
                             </button>
@@ -120,6 +163,17 @@ const Header = () => {
 
                 {/* Mobile Menu */}
                 <div className={`${styles.mobileMenu} ${isMobileOpen ? styles.open : ""}`}>
+                    {/* --- User Name (Mobile) --- */}
+                    {user && (
+                        <div className={styles.mobileUserInfo}>
+                            <UserCircle size={24} />
+                            <div>
+                                <p>Hi, {user.name}</p>
+                                <p className={styles.email}>{user.email}</p>
+                            </div>
+                        </div>
+                    )}
+
                     {navItems.map((item) => {
                         const isActive = item.path === activePath;
                         return (
@@ -134,6 +188,19 @@ const Header = () => {
                             </Link>
                         );
                     })}
+
+                    {/* --- Logout (Mobile) --- */}
+                    {user && (
+                        <Button
+                            onClick={() => handleLogout()}
+                            danger={true}
+                            mobileHeader={true}
+                            mobileClass={styles.mobileLink}
+                            icon={LogOut}
+                        >
+                            Logout
+                        </Button>
+                    )}
                 </div>
             </nav>
             <div style={{ height: headerHeight, transition: "height 0.2s ease" }} />

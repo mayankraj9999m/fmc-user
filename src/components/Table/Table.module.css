@@ -1,0 +1,99 @@
+.tableResponsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table {
+    min-width: 600px;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table th,
+.table td {
+    padding: 0.5rem 1rem;
+    text-align: left;
+    white-space: nowrap;
+}
+
+/* .table tr:hover td {
+    background-color: var(--tr-bg-hover);
+    transition: background 0.2s ease;
+} */
+
+.table th {
+    /* border-bottom: 2px solid var(--nav-border); */
+    background-color: var(--th-bg);
+    color: var(--th-color);
+}
+
+.table td {
+    background-color: var(--td-bg);
+}
+
+.headerContent {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    user-select: none;
+}
+
+.sortableHeader {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.sortableHeader:hover {
+    background-color: var(--th-bg-hover);
+}
+
+/* Checkbox specific alignments */
+.checkboxCell {
+    width: 40px;
+    text-align: center !important;
+    vertical-align: middle;
+}
+
+.checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    margin: 0;
+    vertical-align: middle;
+    accent-color: var(--text-menu-active);
+}
+
+/* Loading and Empty states */
+.stateCell {
+    text-align: center;
+}
+
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-menu);
+    padding: 1rem  0;
+}
+
+.empty {
+    padding: 1rem 0;
+    /* color: var(--text-muted); */
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}

@@ -1,21 +1,40 @@
-// src/pages/Login.jsx
 import { useState, useEffect, useRef } from "react";
-import { GraduationCap, ShieldCheck, Mail, Lock } from "lucide-react";
-import { loginUser } from "../api";
+import { useNavigate } from "react-router"; // <-- Added for redirection
+import { GraduationCap, ShieldCheck, Mail, Lock, AlertCircle, Users } from "lucide-react"; // <-- Added AlertCircle & Users
+import { loginUser } from "../../api";
 import styles from "./Auth.module.css";
+import { useAuth } from "../../context/AuthContext";
 
-const CLIENT_ID = "999538032208-1dda3kb83ddiaiaunrdeiueno10dabsg.apps.googleusercontent.com";
+const CLIENT_ID = import.meta.env.VITE_CLIENT_ID;
 
 const Login = () => {
+    const { role, user, loading, refreshProfile } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!loading && user) {
+            if (role === "admin" || role === "worker") {
+                navigate("/profile", { replace: true });
+            } else {
+                navigate("/", { replace: true });
+            }
+        }
+    }, [user, role, loading, navigate]);
+
     const [loginType, setLoginType] = useState("student");
     const [credentials, setCredentials] = useState({ email: "", password: "" });
+
+    // --- NEW: Staff Login States ---
+    const [staffRole, setStaffRole] = useState("admin"); // Default to admin, can be 'worker'
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     // 1. Setup refs and state for the sliding pill
     const clientRef = useRef(null);
     const tabsRef = useRef({});
     const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
 
-    // 2. Sliding Indicator Logic (identical to Header.jsx)
+    // 2. Sliding Indicator Logic
     useEffect(() => {
         const updateIndicator = () => {
             const activeTab = tabsRef.current[loginType];
@@ -31,7 +50,7 @@ const Login = () => {
         updateIndicator();
         window.addEventListener("resize", updateIndicator);
         return () => window.removeEventListener("resize", updateIndicator);
-    }, [loginType]); // Re-run whenever the loginType changes
+    }, [loginType]);
 
     // Initialize Google Identity Services Script
     useEffect(() => {
@@ -55,23 +74,45 @@ const Login = () => {
         return () => document.body.removeChild(script);
     }, []);
 
+    // --- UPDATED: Staff/Admin Login Handler ---
     const handleStaffLogin = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
+        setError(null); // Clear previous errors
+
         try {
-            const response = await loginUser(credentials);
+            // Include the selected role in the payload for the backend
+            const payload = {
+                email: credentials.email,
+                password: credentials.password,
+                role: staffRole,
+            };
+
+            const response = await loginUser(payload);
             console.log("Logged in successfully", response.data);
-            // TODO: Redirect to dashboard
-        } catch (error) {
-            console.error("Login failed", error);
+
+            await refreshProfile();
+        } catch (err) {
+            console.error("Login failed", err);
+            // Extract error message from backend or use fallback
+            setError(err.response?.data?.error || "Invalid credentials or server error.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleGoogleLogin = () => {
         if (clientRef.current) {
-            clientRef.current.requestCode(); // This redirects the browser to Google
+            clientRef.current.requestCode();
         } else {
             console.error("Google script has not loaded yet.");
         }
+    };
+
+    // Helper to switch tabs and clear errors
+    const handleTabSwitch = (type) => {
+        setLoginType(type);
+        setError(null);
     };
 
     return (
@@ -83,7 +124,7 @@ const Login = () => {
                 </div>
 
                 <div className={styles.tabContainer}>
-                    {/* 3. Render the sliding pill */}
+                    {/* Render the sliding pill */}
                     <div
                         className={styles.activePill}
                         style={{
@@ -95,18 +136,39 @@ const Login = () => {
                     <button
                         ref={(el) => (tabsRef.current["student"] = el)}
                         className={`${styles.tab} ${loginType === "student" ? styles.active : ""}`}
-                        onClick={() => setLoginType("student")}
+                        onClick={() => handleTabSwitch("student")}
                     >
                         <GraduationCap size={18} /> Student
                     </button>
                     <button
                         ref={(el) => (tabsRef.current["staff"] = el)}
                         className={`${styles.tab} ${loginType === "staff" ? styles.active : ""}`}
-                        onClick={() => setLoginType("staff")}
+                        onClick={() => handleTabSwitch("staff")}
                     >
                         <ShieldCheck size={18} /> Staff / Admin
                     </button>
                 </div>
+
+                {/* --- NEW: Error Display --- */}
+                {error && (
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.5rem",
+                            padding: "0.75rem",
+                            marginBottom: "1rem",
+                            backgroundColor: "#fee2e2",
+                            color: "#b91c1c",
+                            borderRadius: "6px",
+                            fontSize: "0.85rem",
+                            border: "1px solid #fca5a5",
+                        }}
+                    >
+                        <AlertCircle size={16} />
+                        <span>{error}</span>
+                    </div>
+                )}
 
                 {loginType === "student" ? (
                     <div className={styles.form}>
@@ -128,6 +190,24 @@ const Login = () => {
                     </div>
                 ) : (
                     <form className={styles.form} onSubmit={handleStaffLogin}>
+                        {/* --- NEW: Role Selector --- */}
+                        <div className={styles.inputGroup}>
+                            <label className={styles.label}>Account Type</label>
+                            <div className={styles.inputWrapper}>
+                                <Users size={18} className={styles.inputIcon} />
+                                <select
+                                    className={styles.input}
+                                    style={{ appearance: "auto", cursor: "pointer" }}
+                                    value={staffRole}
+                                    onChange={(e) => setStaffRole(e.target.value)}
+                                    disabled={isLoading}
+                                >
+                                    <option value="admin">Administrator / Warden</option>
+                                    <option value="worker">Service Staff / Worker</option>
+                                </select>
+                            </div>
+                        </div>
+
                         <div className={styles.inputGroup}>
                             <label className={styles.label}>Email Address</label>
                             <div className={styles.inputWrapper}>
@@ -139,6 +219,7 @@ const Login = () => {
                                     value={credentials.email}
                                     onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
                                     required
+                                    disabled={isLoading}
                                 />
                             </div>
                         </div>
@@ -153,11 +234,19 @@ const Login = () => {
                                     value={credentials.password}
                                     onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
                                     required
+                                    disabled={isLoading}
                                 />
                             </div>
                         </div>
-                        <button type="submit" className={styles.submitBtn}>
-                            Secure Login
+
+                        {/* --- UPDATED: Loading Button State --- */}
+                        <button
+                            type="submit"
+                            className={styles.submitBtn}
+                            disabled={isLoading}
+                            style={{ opacity: isLoading ? 0.7 : 1, cursor: isLoading ? "not-allowed" : "pointer" }}
+                        >
+                            {isLoading ? "Authenticating..." : "Secure Login"}
                         </button>
                     </form>
                 )}

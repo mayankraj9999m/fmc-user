@@ -1,0 +1,153 @@
+.container {
+    margin: 2rem auto;
+    padding: 0 var(--padding-horizontal);
+}
+
+.header {
+    margin-bottom: 2rem;
+}
+
+.title {
+    font-size: 2rem;
+    color: var(--text-title);
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+.profileCard {
+    background: var(--nav-bg);
+    border: 1px solid var(--nav-border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px var(--nav-shadow);
+}
+
+.coverPhoto {
+    width: 100%;
+    height: 120px;
+    /* Use your brand's dark blue from the footer */
+    background-color: var(--nit-color);
+}
+
+.coverPhoto img {
+    width: 100%;
+    height: 100%;
+    /* filter: opacity(0.7) contrast(2); */
+}
+
+.avatarContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: -60px;
+    position: relative;
+}
+
+.avatarBorder {
+    border: 3px solid var(--nit-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid var(--nav-bg);
+    background-color: var(--body-bg);
+    object-fit: cover;
+    box-shadow: 0 2px 8px var(--nav-shadow);
+}
+
+.avatarFallback {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid var(--nav-bg);
+    background-color: var(--nit-color-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 2rem;
+    color: var(--nav-bg);
+}
+
+.mainInfo {
+    text-align: center;
+    padding: 1.5rem 0;
+}
+
+.name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-title);
+}
+
+.roleBadge {
+    display: inline-block;
+    padding: 0.35rem 1rem;
+    background-color: rgba(33, 33, 120, 0.1);
+    color: rgb(33, 33, 120);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+[data-theme="dark"] .roleBadge {
+    background-color: rgba(100, 100, 255, 0.2);
+    color: #a3a3ff;
+}
+
+.detailsGrid {
+    display: grid;
+    /* grid-template-columns: 1fr; */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    width: 100%;
+    gap: 1.5rem;
+    padding: 2rem 1.5rem;
+    align-items: center;
+    justify-content: center;
+    align-content: stretch;
+}
+
+.errorBox {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+@media (min-width: 450px) {
+}
+
+/* Tablet */
+@media (min-width: 780px) {
+    .profileCard {
+        display: flex;
+    }
+    .leftSide {
+        min-width: 40%;
+        border-right: 1px solid var(--nav-border);
+    }
+}
+
+/* Laptop */
+@media (min-width: 1024px) {
+    .leftSide {
+        min-width: 30%;
+    }
+}
+
+/* Desktop */
+@media (min-width: 1280px) {
+}
