@@ -16,11 +16,10 @@
     background: var(--modal-bg);
     padding: 2rem;
     border-radius: var(--modal-border-radius);
-    /* width: 100%; */
+    width: 100%;
     max-width: var(--modal-max-width);
     box-shadow: var(--modal-shadow);
     max-height: 90vh;
-    overflow-y: auto;
 }
 
 .modalHeader {
@@ -62,6 +61,10 @@
 .modalBody {
     display: flex;
     flex-direction: column;
+    max-height: 65vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 10px;
 }
 
 @keyframes modalFadeIn {

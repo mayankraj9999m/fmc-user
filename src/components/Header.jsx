@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 // 1. Import React Router components and hooks
 import { Link, useLocation, useNavigate } from "react-router";
-import { AlertCircle, LogIn, Menu, Moon, Sun, X, UserCircle, House, LogOut, Shield, Users } from "lucide-react";
+import { AlertCircle, LogIn, Menu, Moon, Sun, X, UserCircle, House, LogOut, Shield, Users, MessageSquare, ClipboardList } from "lucide-react";
 import styles from "./Header.module.css";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
@@ -30,9 +30,17 @@ const Header = () => {
                   { path: "/login", label: "Login", icon: LogIn },
                   { path: "/signup", label: "SignUp", icon: LogIn },
               ]),
+
+        // --- NEW: Student Routes ---
+        ...(user && role === "student"
+            ? [{ path: "/student/complaints", label: "Complaints", icon: MessageSquare }]
+            : []),
+
+        // --- NEW: Worker Routes ---
+        ...(user && role === "worker" ? [{ path: "/worker/dashboard", label: "Tasks", icon: ClipboardList }] : []),
         // General Students Dashboard visible to admins
         ...(user && role === "admin"
-            ? [{ path: "/admin/student-dashboard", label: "Students Dashboard", icon: Users }] 
+            ? [{ path: "/admin/student-dashboard", label: "Students Dashboard", icon: Users }]
             : []),
         // NEW: Chief Warden strictly visible only to Chief Warden
         ...(user && role === "admin" && user.position === "Chief Warden"

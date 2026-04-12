@@ -1,6 +1,6 @@
 // src/pages/Admin/WardenDashboard.jsx
 import { useState, useEffect, useCallback } from "react";
-import { Users, Plus, Edit, Trash2, Check, RefreshCw, AlertCircle, Copy, Loader2, Star } from "lucide-react";
+import { Users, Plus, Edit, Trash2, Check, RefreshCw, AlertCircle, Copy, Loader2, Star, Shield } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useAlert } from "../../context/AlertContext";
 import { getWorkers, addWorker, updateWorker, deleteWorker } from "../../api";
@@ -11,28 +11,13 @@ import { Button } from "../../components/Buttons/Button";
 import { NoticeBox } from "../../components/NoticeBox/NoticeBox";
 import CredentialsCard from "../../components/Card/CredentialsCard";
 import { Table } from "../../components/Table/Table";
-
-// Hierarchical Department Structure
-const DEPARTMENT_SUBCATEGORIES = {
-    "Civil": [
-        "Wall and roof",
-        "Carpenter",
-        "Plumber"
-    ],
-    "Electrical": [
-        "Electrician",
-        "Lift maintainer"
-    ],
-    "Internet": [
-        "LAN maintainer"
-    ],
-    "Other": [] // Leaves it open for custom text input
-};
+import { DEPARTMENT_SUBCATEGORIES } from "../Types_of_complaints";
+import WorkerPerformance from "./WorkerPerformance";
 
 // Map the top-level keys to be used in the Select dropdown
-const DEPARTMENT_OPTIONS = Object.keys(DEPARTMENT_SUBCATEGORIES).map(dept => ({
+const DEPARTMENT_OPTIONS = Object.keys(DEPARTMENT_SUBCATEGORIES).map((dept) => ({
     value: dept,
-    label: dept
+    label: dept,
 }));
 
 const GENDER_OPTIONS = [
@@ -44,6 +29,9 @@ const GENDER_OPTIONS = [
 const WardenDashboard = () => {
     const { user, role } = useAuth();
     const { showAlert, showConfirm } = useAlert();
+
+    const [activeTab, setActiveTab] = useState("manage");
+
     const [workers, setWorkers] = useState([]);
     const [isFetching, setIsFetching] = useState(true);
 
@@ -156,12 +144,12 @@ const WardenDashboard = () => {
     const handleDepartmentChange = (e) => {
         const newDept = e.target.value;
         const subCategories = DEPARTMENT_SUBCATEGORIES[newDept] || [];
-        
-        setFormData({ 
-            ...formData, 
+
+        setFormData({
+            ...formData,
             department: newDept,
             // Auto-select the first sub-category if it exists, otherwise leave empty
-            sub_work_category: subCategories.length > 0 ? subCategories[0] : ""
+            sub_work_category: subCategories.length > 0 ? subCategories[0] : "",
         });
     };
 
@@ -219,31 +207,53 @@ const WardenDashboard = () => {
                 </div>
             </div>
 
-            <div className={styles.card} style={{marginTop: "2rem"}}>
-                <div className={styles.studentToolbar}>
-                    <h2 style={{ margin: 0 }}>Registered Staff ({workers.length})</h2>
-                    <Button
-                        onClick={fetchWorkers}
-                        isLoading={isFetching}
-                        disabled={isFetching}
-                        icon={RefreshCw}
-                        slim={true}
-                    ></Button>
-                    <div className={styles.rightToolbar}>
-                        <Button onClick={handleOpenAddModal} icon={Plus}>
-                            Onboard Staff
-                        </Button>
+            <div className={styles.tabs}>
+                <button
+                    className={`${styles.tabBtn} ${activeTab === "manage" ? styles.active : ""}`}
+                    onClick={() => setActiveTab("manage")}
+                >
+                    <Shield size={18} /> Manage Workers
+                </button>
+                <button
+                    className={`${styles.tabBtn} ${activeTab === "performance" ? styles.active : ""}`}
+                    onClick={() => setActiveTab("performance")}
+                >
+                    <Shield size={18} /> Worker Performance
+                </button>
+            </div>
+
+            {/* Conditional Rendering based on Tab */}
+            {activeTab === "manage" ? (
+                <div>
+                    <div className={styles.card} style={{ marginTop: "2rem" }}>
+                        <div className={styles.studentToolbar}>
+                            <h2 style={{ margin: 0 }}>Registered Staff ({workers.length})</h2>
+                            <Button
+                                onClick={fetchWorkers}
+                                isLoading={isFetching}
+                                disabled={isFetching}
+                                icon={RefreshCw}
+                                slim={true}
+                            ></Button>
+                            <div className={styles.rightToolbar}>
+                                <Button onClick={handleOpenAddModal} icon={Plus}>
+                                    Onboard Staff
+                                </Button>
+                            </div>
+                        </div>
+
+                        <Table
+                            columns={columns}
+                            data={workers}
+                            isLoading={isFetching}
+                            emptyMessage="No workers found for your hostel."
+                            loadingMessage="Loading staff data..."
+                        />
                     </div>
                 </div>
-
-                <Table
-                    columns={columns}
-                    data={workers}
-                    isLoading={isFetching}
-                    emptyMessage="No workers found for your hostel."
-                    loadingMessage="Loading staff data..."
-                />
-            </div>
+            ) : (
+                <WorkerPerformance />
+            )}
 
             <Modal
                 isOpen={isAddModalOpen || editingWorker}
@@ -322,7 +332,7 @@ const WardenDashboard = () => {
                                 disabled={isSaving}
                                 options={DEPARTMENT_OPTIONS}
                             />
-                            
+
                             {/* Dynamic Sub-Category Input based on Selected Department */}
                             {DEPARTMENT_SUBCATEGORIES[formData.department]?.length > 0 ? (
                                 <Select
@@ -331,13 +341,16 @@ const WardenDashboard = () => {
                                     onChange={(e) => setFormData({ ...formData, sub_work_category: e.target.value })}
                                     required
                                     disabled={isSaving}
-                                    options={DEPARTMENT_SUBCATEGORIES[formData.department].map(sub => ({ value: sub, label: sub }))}
+                                    options={DEPARTMENT_SUBCATEGORIES[formData.department].map((sub) => ({
+                                        value: sub,
+                                        label: sub,
+                                    }))}
                                 />
                             ) : (
                                 <Input
                                     type="text"
                                     label="Specific Category (Optional)"
-                                    placeholder="e.g. Sweeper, Groundskeeper"
+                                    placeholder="e.g., Miscellaneous"
                                     value={formData.sub_work_category || ""}
                                     onChange={(e) => setFormData({ ...formData, sub_work_category: e.target.value })}
                                     disabled={isSaving}

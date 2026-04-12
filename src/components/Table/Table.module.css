@@ -17,6 +17,8 @@
     padding: 0.5rem 1rem;
     text-align: left;
     white-space: nowrap;
+    overflow: hidden;
+    max-width: 250px;
 }
 
 /* .table tr:hover td {
@@ -32,6 +34,7 @@
 
 .table td {
     background-color: var(--td-bg);
+    text-overflow: ellipsis;
 }
 
 .headerContent {

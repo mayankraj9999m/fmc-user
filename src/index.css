@@ -1,6 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Outfit:wght@100..900&family=Roboto+Slab:wght@100..900&family=Science+Gothic:wght@100..900&display=swap");
 
 :root {
+    --bg-secondary: rgb(248, 248, 255);
+    --description-bg: rgb(226, 217, 255);
+
+    /* HONME PAGE */
+    --header-bg: rgb(245, 240, 255);
+
     /* HEADER */
     --nav-bg: white;
     --nav-border: rgb(33, 33, 120);
@@ -19,7 +25,7 @@
     --btn-primary-hover: rgb(3, 3, 217);
 
     --btn-secondary-border: rgb(33, 33, 120);
-    --btn-secondary-bg: rgba(255, 255, 255, 0.562);;
+    --btn-secondary-bg: rgba(255, 255, 255, 0.562);
     --btn-secondary-hover: #e8e7ff;
     --btn-secondary-hover-text: #261cb9;
     --btn-secondary-hover-border: #a5affc;
@@ -27,6 +33,10 @@
     --btn-secondary-danger-hover-text: #b91c1c;
     --btn-secondary-danger-hover: #fee2e2;
     --btn-secondary-danger-hover-border: #fca5a5;
+
+    --btn-success-bg: rgb(0, 176, 15);
+    --btn-success-text: #ffffff;
+    --btn-success-hover: green;
 
     /* NOTICE BOX */
     --notice-bg: rgb(255, 243, 225);
@@ -39,6 +49,19 @@
     --modal-border-radius: 8px;
     --modal-max-width: 600px;
     --modal-z-index: 2000;
+
+    /* Status Badge Colors */
+    --status-initiated-bg: #ffeeba;
+    --status-initiated-text: #856404;
+
+    --status-assigned-bg: #b8daff;
+    --status-assigned-text: #004085;
+
+    --status-resolved-bg: #d4edda;
+    --status-resolved-text: #155724;
+
+    --status-escalated-bg: #f8d7da;
+    --status-escalated-text: #721c24;
 
     /* --- Form UI Variables --- */
     --form-input-bg: transparent;
@@ -57,6 +80,18 @@
     --text-light: rgba(0, 0, 0, 0.727);
     --text-tab: white;
     --button-hover: rgb(47, 47, 196);
+
+    /* STAT CARDS */
+    --pending-bg: rgb(255, 225, 168);
+    --pending-color: rgb(147, 96, 0);
+    --success-bg: rgb(194, 255, 199);
+    --success-color: #28a745;
+    --failure-bg: rgb(255, 218, 214);
+    --failure-color: #dc3545;
+
+    /* COMPLAINT DETAILS TABLE */
+    --th-comp-bg: rgb(236, 234, 255);
+    --th-comp-color: rgb(33, 33, 120);;
 
     /* FOOTER */
     --footer-bg: rgb(33, 33, 120);

@@ -1,9 +1,10 @@
 import styles from "./DetailItem.module.css";
 
-export const DetailItem = ({ icon: Icon, label, value }) => {
+export const DetailItem = ({ icon: Icon, label, value, showIcon = true }) => {
     return (
         <div className={styles.detailItem}>
-            <div className={styles.iconWrapper}>{Icon && <Icon size={20} />}</div>
+            {showIcon && <div className={styles.iconWrapper}>{Icon && <Icon size={20} />}</div>}
+
             <div className={styles.detailContent}>
                 <span className={styles.detailLabel}>{label}</span>
                 <span className={styles.detailValue}>{value}</span>

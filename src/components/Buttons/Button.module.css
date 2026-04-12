@@ -22,6 +22,15 @@
     color: var(--btn-primary-text);
 }
 
+.success {
+    background: var(--btn-success-bg);
+    color: var(--btn-success-text);
+}
+
+.success:hover:not(:disabled) {
+    background: var(--btn-success-hover);
+}
+
 .primary:hover:not(:disabled) {
     background: var(--btn-primary-hover);
 }

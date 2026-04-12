@@ -43,9 +43,39 @@ export const addWarden = (data) => API.post("/admin/chief/wardens", data);
 export const updateWarden = (id, data) => API.put(`/admin/chief/wardens/${id}`, data);
 export const deleteWarden = (id) => API.delete(`/admin/chief/wardens/${id}`);
 export const updateAdminPassword = (data) => API.put("/auth/admin/profile/password", data); // data = { currentPassword, newPassword }
+export const getHostelAnalytics = () => API.get("/admin/chief/hostel-analytics");
 
 //! --- Warden/Worker Operations ---
 export const getWorkers = () => API.get("/admin/warden/workers");
 export const addWorker = (data) => API.post("/admin/warden/workers", data);
 export const updateWorker = (id, data) => API.put(`/admin/warden/workers/${id}`, data);
 export const deleteWorker = (id) => API.delete(`/admin/warden/workers/${id}`);
+export const getWorkerPerformance = (department = "") =>
+    API.get(`/admin/warden/performance?department=${encodeURIComponent(department)}`);
+export const getWorkerComplaintsByWarden = (workerId, page = 1, limit = 10) =>
+    API.get(`/admin/warden/workers/${workerId}/complaints?page=${page}&limit=${limit}`);
+
+// Student Complaint Routes
+export const getStudentComplaints = (page = 1, limit = 10, status = "") =>
+    API.get(`/complaints/student/dashboard?page=${page}&limit=${limit}&status=${encodeURIComponent(status)}`);
+export const lodgeComplaint = (formData) =>
+    API.post("/complaints/student", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
+export const escalateComplaint = (id) => API.put(`/complaints/student/${id}/escalate`);
+export const submitComplaintFeedback = (id, data) => API.put(`/complaints/student/${id}/feedback`, data);
+
+// Worker Complaint Routes
+export const getWorkerComplaints = (page = 1, limit = 10, status = "") =>
+    API.get(`/complaints/worker/dashboard?page=${page}&limit=${limit}&status=${encodeURIComponent(status)}`);
+export const resolveComplaint = (id, formData) =>
+    API.put(`/complaints/worker/${id}/resolve`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
+
+// --- Announcement Routes ---
+export const getAnnouncements = () => {
+    return API.get(`/announcements`);
+};
+
+export const createAnnouncement = (data) => API.post("/announcements", data);

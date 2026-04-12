@@ -1,6 +1,6 @@
 // src/pages/Admin/ChiefWardenDashboard.jsx
 import { useState, useEffect, useCallback } from "react";
-import { Shield, Plus, Edit, Trash2, Check, RefreshCw, AlertCircle, Copy, Users, Loader2 } from "lucide-react";
+import { Shield, Plus, Edit, Trash2, Check, RefreshCw, AlertCircle, Copy, Users, Loader2, BarChart2 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useAlert } from "../../context/AlertContext";
 import { getWardens, addWarden, updateWarden, deleteWarden } from "../../api";
@@ -12,6 +12,7 @@ import { HOSTEL_OPTIONS } from "../Hostels";
 import { NoticeBox } from "../../components/NoticeBox/NoticeBox";
 import CredentialsCard from "../../components/Card/CredentialsCard";
 import { Table } from "../../components/Table/Table";
+import HostelAnalytics from "./HostelAnalytics";
 
 const POSITION_OPTIONS = [
     { value: "Hostel Warden", label: "Hostel Warden" },
@@ -185,9 +186,15 @@ const ChiefWardenDashboard = () => {
                     <Shield size={18} /> Admin Management
                 </button>
                 {/* Future tabs can be added here (e.g., Global Analytics) */}
+                <button
+                    className={`${styles.tabBtn} ${activeTab === "analytics" ? styles.active : ""}`}
+                    onClick={() => setActiveTab("analytics")}
+                >
+                    <BarChart2 size={18} /> Hostel Analytics
+                </button>
             </div>
 
-            {activeTab === "management" && (
+            {activeTab === "management" ? (
                 <div className={styles.card}>
                     <div className={styles.studentToolbar}>
                         <h2 style={{ margin: 0 }}>Registered Staff ({wardens.length})</h2>
@@ -212,6 +219,10 @@ const ChiefWardenDashboard = () => {
                         emptyMessage="No admin accounts found."
                         loadingMessage="Loading admin accounts..."
                     />
+                </div>
+            ) : (
+                <div style={{ marginTop: "2rem" }}>
+                    <HostelAnalytics />
                 </div>
             )}
 
