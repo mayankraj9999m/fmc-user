@@ -10,7 +10,7 @@ import bannerImage from "../../assets/nit_front_gate.jpg";
 import { Button } from "../../components/Buttons/Button";
 import Modal from "../../components/Modal/Modal";
 import { Input, Select, FormRow, FormActions } from "../../components/FormElements/FormElements";
-import { Navigate, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
 const Home = () => {
     const { user, role, loading } = useAuth();
@@ -106,7 +106,7 @@ const Home = () => {
             <div 
                 className={styles.guestContainer}
                 style={{
-                    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)), url(${bannerImage})`
+                    backgroundImage: `linear-gradient(rgba(6, 108, 185, 0.6), rgba(5, 57, 125, 0.7)), url(${bannerImage})`
                 }}
             >
                 <div className={styles.heroCard}>

@@ -4,7 +4,7 @@ import styles from "./Footer.module.css";
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
-    const lastUpdated = "March 2026"; 
+    const lastUpdated = "12 April 2026"; 
 
     return (
         <footer className={styles.footer}>
@@ -17,7 +17,7 @@ const Footer = () => {
                             <h3 className={styles.brandName}>Fix My Campus</h3>
                         </div>
                         <p className={styles.brandDesc}>
-                            The official AI-enabled hostel complaint resolution and management system for the National Institute of Technology Delhi.
+                            The official hostel complaint resolution and management system for the National Institute of Technology Delhi.
                         </p>
                     </div>
 
@@ -37,15 +37,15 @@ const Footer = () => {
                         <ul className={styles.contactList}>
                             <li>
                                 <MapPin size={18} className={styles.icon} />
-                                <span>Sector A-7, Institutional Area, Narela, Delhi - 110040</span>
+                                <span>Plot No. FA7, GT Karnal Rd, Garthi Khurad, Bakoli, Delhi, 110036</span>
                             </li>
-                            <li>
+                            {/* <li>
                                 <Phone size={18} className={styles.icon} />
                                 <span>+91 11 3386 1005 (Hostel Office)</span>
-                            </li>
+                            </li> */}
                             <li>
                                 <Mail size={18} className={styles.icon} />
-                                <a href="mailto:admin@nitdelhi.ac.in">admin@nitdelhi.ac.in</a>
+                                <a href="mailto:ocw@nitdelhi.ac.in">ocw@nitdelhi.ac.in</a>
                             </li>
                         </ul>
                     </div>

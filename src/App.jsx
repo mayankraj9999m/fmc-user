@@ -8,7 +8,7 @@ import { RouterProvider } from "react-router/dom";
 import RootLayout from "./layouts/RootLayout.jsx";
 import NotFound from "./components/NotFound.jsx";
 import Login from "./pages/Auth/Login.jsx";
-import SignUp from "./pages/Auth/SignUp.jsx";
+// import SignUp from "./pages/Auth/SignUp.jsx";
 import Profile from "./pages/Auth/Profile.jsx";
 import AuthCallback from "./pages/Auth/AuthCallback.jsx";
 import { AuthProvider } from "./context/AuthProvider.jsx";
@@ -50,10 +50,10 @@ const router = createBrowserRouter([
                 path: "login",
                 element: <Login />,
             },
-            {
-                path: "signup",
-                element: <SignUp />,
-            },
+            // {
+            //     path: "signup",
+            //     element: <SignUp />,
+            // },
             {
                 path: "profile",
                 element: <Profile />,
