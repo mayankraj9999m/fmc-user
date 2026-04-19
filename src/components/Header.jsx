@@ -28,7 +28,6 @@ const Header = () => {
             ? [{ path: "/profile", label: "Profile", icon: UserCircle }]
             : [
                   { path: "/login", label: "Login", icon: LogIn },
-                  { path: "/signup", label: "SignUp", icon: LogIn },
               ]),
 
         // --- NEW: Student Routes ---

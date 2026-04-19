@@ -27,7 +27,7 @@ const Footer = () => {
                         <ul className={styles.linkList}>
                             <li><Link to="/">Home Dashboard</Link></li>
                             <li><Link to="/login">Student Login</Link></li>
-                            <li><Link to="/signup">Activate Account</Link></li>
+                            {/* <li><Link to="/signup">Activate Account</Link></li> */}
                         </ul>
                     </div>
 
