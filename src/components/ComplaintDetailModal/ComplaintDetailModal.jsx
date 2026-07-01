@@ -72,6 +72,21 @@ const ComplaintDetailModal = ({ isOpen, onClose, complaint, role = "student" }) 
                             <td style={tdStyle}>{complaint.sub_category}</td>
                         </tr>
                         <tr>
+                            <th style={thStyle}>Priority Score</th>
+                            <td style={tdStyle}>
+                                <span style={{
+                                    fontWeight: "bold",
+                                    padding: "2px 8px",
+                                    borderRadius: "12px",
+                                    fontSize: "0.85rem",
+                                    backgroundColor: complaint.priority_score === 'High' ? '#fee2e2' : complaint.priority_score === 'Medium' ? '#fef3c7' : '#dcfce7',
+                                    color: complaint.priority_score === 'High' ? '#dc2626' : complaint.priority_score === 'Medium' ? '#d97706' : '#16a34a'
+                                }}>
+                                    {complaint.priority_score || "N/A"}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
                             <th style={thStyle}>Escalated</th>
                             <td style={tdStyle}>{complaint.is_escalated ? "Yes" : "No"}</td>
                         </tr>

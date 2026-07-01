@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router"; // <-- Added for redirection
 import { GraduationCap, ShieldCheck, Mail, Lock, AlertCircle, Users } from "lucide-react"; // <-- Added AlertCircle & Users
-import { loginUser } from "../../api";
+import { loginUser, devLogin } from "../../api";
 import styles from "./Auth.module.css";
 import { useAuth } from "../../context/AuthContext";
 
@@ -28,6 +28,8 @@ const Login = () => {
     const [staffRole, setStaffRole] = useState("admin"); // Default to admin, can be 'worker'
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    
+    const [devRollNo, setDevRollNo] = useState("");
 
     // 1. Setup refs and state for the sliding pill
     const clientRef = useRef(null);
@@ -109,6 +111,20 @@ const Login = () => {
         }
     };
 
+    const handleDevLogin = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setError(null);
+        try {
+            await devLogin(devRollNo);
+            await refreshProfile();
+        } catch (err) {
+            setError(err.response?.data?.error || "Dev login failed");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     // Helper to switch tabs and clear errors
     const handleTabSwitch = (type) => {
         setLoginType(type);
@@ -183,6 +199,27 @@ const Login = () => {
                             <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" width="20" />
                             Sign in with Google
                         </button>
+
+                        {import.meta.env.DEV && (
+                            <form onSubmit={handleDevLogin} style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                                <div style={{ fontSize: "0.85rem", color: "#666", textAlign: "center" }}>--- OR (Dev Only) ---</div>
+                                <div className={styles.inputWrapper}>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Enter Roll No (e.g. 21BCS019)" 
+                                        className={styles.input}
+                                        value={devRollNo}
+                                        onChange={(e) => setDevRollNo(e.target.value)}
+                                        required
+                                        disabled={isLoading}
+                                    />
+                                </div>
+                                <button type="submit" className={styles.submitBtn} disabled={isLoading}>
+                                    {isLoading ? "Logging in..." : "Dev Login"}
+                                </button>
+                            </form>
+                        )}
+                        
                         <div className={styles.notice}>
                             <strong>Note:</strong> Only students marked as "Verified Hostellers" from the official
                             allotment list can log in. Non-hostellers are blocked from accessing the system.

@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { getAnnouncements, createAnnouncement } from "../../api";
+import { getAnnouncements, createAnnouncement, summarizeAnnouncements } from "../../api";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import styles from "./Home.module.css";
 import reactLogo from "../../assets/logo.svg";
 import bannerImage from "../../assets/nit_front_gate.jpg";
@@ -21,6 +23,10 @@ const Home = () => {
         Worker: [],
     });
     const [fetchingAnns, setFetchingAnns] = useState(false);
+
+    const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
+    const [summaryData, setSummaryData] = useState("");
+    const [isSummarizing, setIsSummarizing] = useState(false);
 
     // Tab State
     const [activeTab, setActiveTab] = useState("All");
@@ -94,6 +100,20 @@ const Home = () => {
         setIsModalOpen(false);
         setSubmitMsg("");
         setFormData({ title: "", content: "", type: "" });
+    };
+
+    const handleSummarizeAnnouncements = async () => {
+        setIsSummaryModalOpen(true);
+        setIsSummarizing(true);
+        setSummaryData("Generating critical announcement summary...");
+        try {
+            const { data } = await summarizeAnnouncements();
+            setSummaryData(data.summary);
+        } catch (err) {
+            setSummaryData("Failed to generate summary.");
+        } finally {
+            setIsSummarizing(false);
+        }
     };
 
     if (loading) return <div className={styles.loader}>Loading...</div>;
@@ -177,7 +197,12 @@ const Home = () => {
             {/* Announcements Panel */}
             <div className={styles.announcementPanel}>
                 <div className={styles.panelHeader}>
-                    <h2>Latest Announcements</h2>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <h2>Latest Announcements</h2>
+                        <Button variant="primary" onClick={handleSummarizeAnnouncements} disabled={isSummarizing} slim={true}>
+                            ✨ AI Summarize
+                        </Button>
+                    </div>
                     {canAnnounce && (
                         <Button variant="primary" icon={Plus} onClick={() => setIsModalOpen(true)} slim>
                             New Announcement
@@ -270,6 +295,28 @@ const Home = () => {
                     </FormActions>
                 </form>
             </Modal>
+
+            {/* AI Summary Modal */}
+            {isSummaryModalOpen && (
+                <Modal
+                    title="AI Announcement Summary"
+                    isOpen={isSummaryModalOpen}
+                    onClose={() => setIsSummaryModalOpen(false)}
+                >
+                    <div className="markdown-content" style={{ padding: "10px" }}>
+                        {isSummarizing ? (
+                            <p>Generating summary...</p>
+                        ) : (
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{summaryData}</ReactMarkdown>
+                        )}
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
+                        <Button variant="secondary" onClick={() => setIsSummaryModalOpen(false)}>
+                            Close
+                        </Button>
+                    </div>
+                </Modal>
+            )}
         </div>
     );
 };

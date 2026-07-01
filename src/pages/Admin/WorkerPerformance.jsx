@@ -1,6 +1,8 @@
 // src/pages/Admin/WorkerPerformance.jsx
 import { useState, useEffect, useCallback } from "react";
-import { getWorkerPerformance, getWorkerComplaintsByWarden } from "../../api";
+import { getWorkerPerformance, getWorkerComplaintsByWarden, summarizeWorkerPerformance } from "../../api";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Table } from "../../components/Table/Table";
 import { Select } from "../../components/FormElements/FormElements";
 import { Button } from "../../components/Buttons/Button";
@@ -19,6 +21,10 @@ const WorkerPerformance = () => {
     const [departmentFilter, setDepartmentFilter] = useState("");
     const [isLoading, setIsLoading] = useState(true);
 
+    const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
+    const [summaryData, setSummaryData] = useState("");
+    const [isSummarizing, setIsSummarizing] = useState(false);
+
     // --- Modal & Specific Worker States ---
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedWorker, setSelectedWorker] = useState(null);
@@ -34,6 +40,7 @@ const WorkerPerformance = () => {
     const [complaintsLimit, setComplaintsLimit] = useState(5);
     const [complaintsTotalPages, setComplaintsTotalPages] = useState(1);
     const [complaintsTotalRecords, setComplaintsTotalRecords] = useState(0);
+    const [priorityFilter, setPriorityFilter] = useState("");
 
     const loadPerformance = useCallback(async () => {
         setIsLoading(true);
@@ -57,7 +64,7 @@ const WorkerPerformance = () => {
         if (!selectedWorker) return;
         setIsFetchingComplaints(true);
         try {
-            const { data } = await getWorkerComplaintsByWarden(selectedWorker.id, complaintsPage, complaintsLimit);
+            const { data } = await getWorkerComplaintsByWarden(selectedWorker.id, complaintsPage, complaintsLimit, priorityFilter);
             setWorkerComplaints(data.history);
             setComplaintsTotalPages(data.pagination.totalPages);
             setComplaintsTotalRecords(data.pagination.totalRecords);
@@ -66,7 +73,7 @@ const WorkerPerformance = () => {
         } finally {
             setIsFetchingComplaints(false);
         }
-    }, [selectedWorker, complaintsPage, complaintsLimit, showAlert]);
+    }, [selectedWorker, complaintsPage, complaintsLimit, priorityFilter, showAlert]);
 
     useEffect(() => {
         if (isModalOpen) {
@@ -77,6 +84,7 @@ const WorkerPerformance = () => {
     const handleViewTasks = (worker) => {
         setSelectedWorker(worker);
         setComplaintsPage(1);
+        setPriorityFilter("");
         setIsModalOpen(true);
     };
 
@@ -84,6 +92,21 @@ const WorkerPerformance = () => {
     const handleViewComplaintDetails = (complaint) => {
         setSelectedComplaintDetail(complaint);
         setIsComplaintDetailModalOpen(true);
+    };
+
+    const handleSummarize = async () => {
+        setIsSummaryModalOpen(true);
+        setIsSummarizing(true);
+        setSummaryData("Generating managerial summary...");
+        try {
+            const { data } = await summarizeWorkerPerformance();
+            setSummaryData(data.summary);
+        } catch (err) {
+            setSummaryData("Failed to generate summary.");
+            showAlert(err.response?.data?.error || "Failed to generate summary.", "error");
+        } finally {
+            setIsSummarizing(false);
+        }
     };
 
     const handleComplaintsLimitChange = (newLimit) => {
@@ -140,6 +163,22 @@ const WorkerPerformance = () => {
             label: "Assigned On",
             render: (row) => new Date(row.assigned_at || row.lodged_at).toLocaleDateString(),
         },
+        { 
+            key: "priority_score", 
+            label: "Priority",
+            render: (row) => (
+                <span style={{
+                    fontWeight: "bold",
+                    padding: "2px 6px",
+                    borderRadius: "4px",
+                    fontSize: "0.8rem",
+                    backgroundColor: row.priority_score === 'High' ? '#fee2e2' : row.priority_score === 'Medium' ? '#fef3c7' : '#dcfce7',
+                    color: row.priority_score === 'High' ? '#dc2626' : row.priority_score === 'Medium' ? '#d97706' : '#16a34a'
+                }}>
+                    {row.priority_score || "N/A"}
+                </span>
+            )
+        },
         { key: "department", label: "Dept / Category", render: (row) => `${row.department} - ${row.sub_category}`},
         {
             key: "location",
@@ -147,6 +186,11 @@ const WorkerPerformance = () => {
             render: (row) => `Room ${row.room_no}`,
         },
         { key: "status", label: "Status", render: (row) => getStatusBadge(row) },
+        { 
+            key: "rating", 
+            label: "Rating", 
+            render: (row) => row.rating ? `⭐ ${row.rating}` : "N/A" 
+        },
         {
             key: "actions",
             label: "Action",
@@ -177,8 +221,13 @@ const WorkerPerformance = () => {
             </div>
 
             {/* Header & Filter */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h2>Worker Performance Metrics</h2>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                    <h2>Worker Performance</h2>
+                    <Button variant="primary" onClick={handleSummarize} disabled={isSummarizing} slim={true}>
+                        ✨ AI Summarize
+                    </Button>
+                </div>
                 <div style={{ width: "250px" }}>
                     <Select
                         name="departmentFilter"
@@ -207,9 +256,29 @@ const WorkerPerformance = () => {
                     title={`Work History: ${selectedWorker.name}`}
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
-                    maxWidth="900px" // Increased max-width for better table viewing
+                    maxWidth="1100px" // Increased max-width for better table viewing
                 >
                     <div>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                            <div style={{ width: '200px' }}>
+                                <Select
+                                    label="Filter by Priority"
+                                    name="priorityFilter"
+                                    value={priorityFilter}
+                                    onChange={(e) => {
+                                        setPriorityFilter(e.target.value);
+                                        setComplaintsPage(1);
+                                    }}
+                                    slim={true}
+                                    options={[
+                                        { label: "All Priorities", value: "" },
+                                        { label: "High", value: "High" },
+                                        { label: "Medium", value: "Medium" },
+                                        { label: "Low", value: "Low" },
+                                    ]}
+                                />
+                            </div>
+                        </div>
                         {/* Table View Container */}
                         <Table
                             columns={taskColumns}
@@ -249,6 +318,28 @@ const WorkerPerformance = () => {
                     complaint={selectedComplaintDetail}
                     role="worker"
                 />
+            )}
+
+            {/* AI Summary Modal */}
+            {isSummaryModalOpen && (
+                <Modal
+                    title="AI Performance Summary"
+                    isOpen={isSummaryModalOpen}
+                    onClose={() => setIsSummaryModalOpen(false)}
+                >
+                    <div className="markdown-content" style={{ padding: "10px" }}>
+                        {isSummarizing ? (
+                            <p>Generating summary...</p>
+                        ) : (
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{summaryData}</ReactMarkdown>
+                        )}
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
+                        <Button variant="secondary" onClick={() => setIsSummaryModalOpen(false)}>
+                            Close
+                        </Button>
+                    </div>
+                </Modal>
             )}
         </div>
     );

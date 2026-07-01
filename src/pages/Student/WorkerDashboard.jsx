@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { getWorkerComplaints, resolveComplaint } from "../../api";
+import { getWorkerComplaints, resolveComplaint, summarizeWorkerComplaints } from "../../api";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { FormRow, Input, FormActions, Select } from "../../components/FormElements/FormElements";
 import { Button } from "../../components/Buttons/Button";
 import { Table } from "../../components/Table/Table";
@@ -18,12 +20,16 @@ const WorkerDashboard = () => {
     // Modals State
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [isResolveModalOpen, setIsResolveModalOpen] = useState(false);
+    const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
+    const [summaryData, setSummaryData] = useState("");
+    const [isSummarizing, setIsSummarizing] = useState(false);
     const [selectedComplaint, setSelectedComplaint] = useState(null);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [limit, setLimit] = useState(5);
     const [statusFilter, setStatusFilter] = useState("");
+    const [priorityFilter, setPriorityFilter] = useState("");
     const [totalComplaints, setTotalComplaints] = useState(null);
 
     // Resolve Form State
@@ -34,7 +40,7 @@ const WorkerDashboard = () => {
     const loadData = useCallback(async () => {
         setIsFetching(true);
         try {
-            const { data } = await getWorkerComplaints(currentPage, limit, statusFilter);
+            const { data } = await getWorkerComplaints(currentPage, limit, statusFilter, priorityFilter);
             setStats(data.stats || { pending: 0, resolved: 0, defaulted: 0 });
             setHistory(data.history || []);
             setTotalPages(data.pagination?.totalPages || 1);
@@ -44,10 +50,15 @@ const WorkerDashboard = () => {
         } finally {
             setIsFetching(false);
         }
-    }, [showAlert, currentPage, statusFilter, limit]);
+    }, [showAlert, currentPage, statusFilter, priorityFilter, limit]);
 
     const handleFilterChange = (e) => {
         setStatusFilter(e.target.value);
+        setCurrentPage(1);
+    };
+
+    const handlePriorityFilterChange = (e) => {
+        setPriorityFilter(e.target.value);
         setCurrentPage(1);
     };
 
@@ -70,6 +81,21 @@ const WorkerDashboard = () => {
         setResolveFile(null);
         setResolveMessage("");
         setIsResolveModalOpen(true);
+    };
+
+    const handleSummarize = async () => {
+        setIsSummaryModalOpen(true);
+        setIsSummarizing(true);
+        setSummaryData("Generating summary...");
+        try {
+            const { data } = await summarizeWorkerComplaints();
+            setSummaryData(data.summary);
+        } catch (err) {
+            setSummaryData("Failed to generate summary.");
+            showAlert(err.response?.data?.error || "Failed to generate summary.", "error");
+        } finally {
+            setIsSummarizing(false);
+        }
     };
 
     const handleResolveSubmit = async (e) => {
@@ -114,6 +140,22 @@ const WorkerDashboard = () => {
             label: "Assigned On",
             render: (row) => new Date(row.assigned_at || row.lodged_at).toLocaleDateString(),
         },
+        { 
+            key: "priority_score", 
+            label: "Priority",
+            render: (row) => (
+                <span style={{
+                    fontWeight: "bold",
+                    padding: "2px 6px",
+                    borderRadius: "4px",
+                    fontSize: "0.8rem",
+                    backgroundColor: row.priority_score === 'High' ? '#fee2e2' : row.priority_score === 'Medium' ? '#fef3c7' : '#dcfce7',
+                    color: row.priority_score === 'High' ? '#dc2626' : row.priority_score === 'Medium' ? '#d97706' : '#16a34a'
+                }}>
+                    {row.priority_score || "N/A"}
+                </span>
+            )
+        },
         { key: "description", label: "Issue" },
         {
             key: "location",
@@ -121,6 +163,11 @@ const WorkerDashboard = () => {
             render: (row) => `${row.hostel_name || "N/A"} - Room ${row.room_no || "N/A"}`,
         },
         { key: "status", label: "Status", render: (row) => getStatusBadge(row) },
+        { 
+            key: "rating", 
+            label: "Rating", 
+            render: (row) => row.rating ? `⭐ ${row.rating}` : "N/A" 
+        },
         {
             key: "actions",
             label: "Action",
@@ -175,8 +222,29 @@ const WorkerDashboard = () => {
                     alignItems: "center",
                 }}
             >
-                <h2>My Assigned Complaints</h2>
-                <div style={{ width: "220px" }}>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                    <h2>My Assigned Complaints</h2>
+                    <Button variant="primary" onClick={handleSummarize} disabled={isSummarizing} slim={true}>
+                        ✨ AI Summarize
+                    </Button>
+                </div>
+                <div style={{ display: "flex", gap: "15px" }}>
+                    <div style={{ width: "220px" }}>
+                        <Select
+                            label="Filter by Priority"
+                            name="priorityFilter"
+                            value={priorityFilter}
+                            onChange={handlePriorityFilterChange}
+                            slim="true"
+                            options={[
+                                { label: "All Priorities", value: "" },
+                                { label: "High", value: "High" },
+                                { label: "Medium", value: "Medium" },
+                                { label: "Low", value: "Low" },
+                            ]}
+                        />
+                    </div>
+                    <div style={{ width: "220px" }}>
                     <Select
                         label="Filter by status"
                         name="statusFilter"
@@ -190,6 +258,7 @@ const WorkerDashboard = () => {
                             { label: "Defaulted (Escalated)", value: "Escalated" },
                         ]}
                     />
+                </div>
                 </div>
             </div>
             <Table
@@ -276,6 +345,27 @@ const WorkerDashboard = () => {
                                 </Button>
                             </FormActions>
                         </form>
+                    </div>
+                </Modal>
+            )}
+            {/* AI Summary Modal */}
+            {isSummaryModalOpen && (
+                <Modal
+                    title="AI Workload Summary"
+                    isOpen={isSummaryModalOpen}
+                    onClose={() => setIsSummaryModalOpen(false)}
+                >
+                    <div className="markdown-content" style={{ padding: "10px" }}>
+                        {isSummarizing ? (
+                            <p>Generating summary...</p>
+                        ) : (
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{summaryData}</ReactMarkdown>
+                        )}
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
+                        <Button variant="secondary" onClick={() => setIsSummaryModalOpen(false)}>
+                            Close
+                        </Button>
                     </div>
                 </Modal>
             )}

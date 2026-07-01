@@ -22,6 +22,7 @@ const StudentComplaints = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [limit, setLimit] = useState(5);
     const [statusFilter, setStatusFilter] = useState("");
+    const [priorityFilter, setPriorityFilter] = useState("");
     const [totalComplaints, setTotalComplaints] = useState(null);
 
     // Modal State
@@ -40,6 +41,7 @@ const StudentComplaints = () => {
         department: "Sanitation",
         sub_category: DEPARTMENT_SUBCATEGORIES["Sanitation"][0],
         description: "",
+        priority_score: "Medium",
     });
 
     const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
@@ -49,7 +51,7 @@ const StudentComplaints = () => {
     const loadData = useCallback(async () => {
         setIsFetching(true);
         try {
-            const { data } = await getStudentComplaints(currentPage, limit, statusFilter);
+            const { data } = await getStudentComplaints(currentPage, limit, statusFilter, priorityFilter);
             setStats(data.stats);
             setHistory(data.history);
             setTotalPages(data.pagination?.totalPages || 1);
@@ -59,10 +61,15 @@ const StudentComplaints = () => {
         } finally {
             setIsFetching(false);
         }
-    }, [showAlert, statusFilter, currentPage, limit]);
+    }, [showAlert, statusFilter, priorityFilter, currentPage, limit]);
 
     const handleFilterChange = (e) => {
         setStatusFilter(e.target.value);
+        setCurrentPage(1);
+    };
+
+    const handlePriorityFilterChange = (e) => {
+        setPriorityFilter(e.target.value);
         setCurrentPage(1);
     };
 
@@ -144,7 +151,7 @@ const StudentComplaints = () => {
         try {
             await lodgeComplaint(data);
             showAlert("Complaint lodged successfully!", "success");
-            setFormData({ department: "", sub_category: "", description: "" });
+            setFormData({ department: "", sub_category: "", description: "", priority_score: "Medium" });
             setFile(null);
             e.target.reset();
             loadData();
@@ -223,6 +230,22 @@ const StudentComplaints = () => {
         { key: "complaint_no", label: "Comp. No.", render: (row) => `#${row.complaint_no}` },
         { key: "department", label: "Department" },
         { key: "sub_category", label: "Category" },
+        { 
+            key: "priority_score", 
+            label: "Priority",
+            render: (row) => (
+                <span style={{
+                    fontWeight: "bold",
+                    padding: "2px 6px",
+                    borderRadius: "4px",
+                    fontSize: "0.8rem",
+                    backgroundColor: row.priority_score === 'High' ? '#fee2e2' : row.priority_score === 'Medium' ? '#fef3c7' : '#dcfce7',
+                    color: row.priority_score === 'High' ? '#dc2626' : row.priority_score === 'Medium' ? '#d97706' : '#16a34a'
+                }}>
+                    {row.priority_score || "N/A"}
+                </span>
+            )
+        },
         { key: "status", label: "Status", render: (row) => getStatusBadge(row) },
         {
             key: "worker_name",
@@ -361,6 +384,20 @@ const StudentComplaints = () => {
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 required
                             />
+                        </FormRow>
+                        <FormRow>
+                            <Select
+                                label="Priority Score *"
+                                name="priority_score"
+                                value={formData.priority_score}
+                                onChange={(e) => setFormData({ ...formData, priority_score: e.target.value })}
+                                disabled={isLoading}
+                                options={[
+                                    { label: "Low", value: "Low" },
+                                    { label: "Medium", value: "Medium" },
+                                    { label: "High", value: "High" },
+                                ]}
+                            />
                             <Input
                                 label="Upload Evidence (Image)"
                                 type="file"
@@ -375,7 +412,13 @@ const StudentComplaints = () => {
                         </FormActions>
                     </form>
                 ) : (
-                    <div>
+                    <div style={{
+                        border: isGeneratingAI ? "2px solid rgba(59, 130, 246, 0.5)" : "2px solid transparent",
+                        boxShadow: isGeneratingAI ? "0 0 15px rgba(59, 130, 246, 0.2)" : "none",
+                        padding: isGeneratingAI ? "15px" : "0",
+                        borderRadius: "12px",
+                        transition: "all 0.3s ease-in-out"
+                    }}>
                         {!aiResult ? (
                             <form key="ai-input-form" onSubmit={handleAIAssist}>
                                 <FormRow>
@@ -411,12 +454,20 @@ const StudentComplaints = () => {
                                     {file && <p><strong>Image Evidence:</strong> Attached</p>}
                                 </div>
                                 <FormActions>
-                                    <Button type="button" variant="remove" onClick={(e) => {
-                                        // e.preventDefault();
-                                        // e.stopPropagation();
+                                    <Button type="button" variant="remove" onClick={() => setAiResult(null)} disabled={isLoading}>
+                                        Retry AI
+                                    </Button>
+                                    <Button type="button" variant="secondary" onClick={() => {
+                                        setFormData({
+                                            department: aiResult.department,
+                                            sub_category: aiResult.sub_category,
+                                            description: aiResult.description,
+                                            priority_score: aiResult.priority_score,
+                                        });
+                                        setComplaintMode("manual");
                                         setAiResult(null);
                                     }} disabled={isLoading}>
-                                        Edit / Retry
+                                        Edit Manually
                                     </Button>
                                     <Button type="submit" disabled={isLoading}>
                                         {isLoading ? "Submitting..." : "Confirm & Lodge Complaint"}
@@ -436,7 +487,23 @@ const StudentComplaints = () => {
                 }}
             >
                 <h2>Complaint History</h2>
-                <div style={{ width: "220px" }}>
+                <div style={{ display: "flex", gap: "15px" }}>
+                    <div style={{ width: "220px" }}>
+                        <Select
+                            label="Filter by Priority"
+                            name="priorityFilter"
+                            value={priorityFilter}
+                            onChange={handlePriorityFilterChange}
+                            slim="true"
+                            options={[
+                                { label: "All Priorities", value: "" },
+                                { label: "High", value: "High" },
+                                { label: "Medium", value: "Medium" },
+                                { label: "Low", value: "Low" },
+                            ]}
+                        />
+                    </div>
+                    <div style={{ width: "220px" }}>
                     <Select
                         label="Filter by status"
                         name="statusFilter"
@@ -451,6 +518,7 @@ const StudentComplaints = () => {
                             { label: "Escalated", value: "Escalated" },
                         ]}
                     />
+                </div>
                 </div>
             </div>
             <Table columns={tableColumns} data={history} isLoading={isFetching} emptyMessage="No complaints found." />

@@ -11,6 +11,7 @@ const API = axios.create({
 //* 4. Logout (Clears Cookie)
 export const googleAuth = (code) => API.post("/auth/google", { code });
 export const loginUser = (credentials) => API.post("/auth/login", credentials); // credentials = { email, password }
+export const devLogin = (roll_no) => API.post("/auth/dev-login", { roll_no }); // For local dev only
 export const getUserProfile = () => API.get("/auth/profile");
 export const logoutUser = () => API.post("/auth/logout");
 
@@ -52,12 +53,13 @@ export const updateWorker = (id, data) => API.put(`/admin/warden/workers/${id}`,
 export const deleteWorker = (id) => API.delete(`/admin/warden/workers/${id}`);
 export const getWorkerPerformance = (department = "") =>
     API.get(`/admin/warden/performance?department=${encodeURIComponent(department)}`);
-export const getWorkerComplaintsByWarden = (workerId, page = 1, limit = 10) =>
-    API.get(`/admin/warden/workers/${workerId}/complaints?page=${page}&limit=${limit}`);
+export const getWorkerComplaintsByWarden = (workerId, page = 1, limit = 10, priority = "") =>
+    API.get(`/admin/warden/workers/${workerId}/complaints?page=${page}&limit=${limit}&priority=${encodeURIComponent(priority)}`);
+export const summarizeWorkerPerformance = () => API.get("/admin/warden/performance/summarize");
 
 // Student Complaint Routes
-export const getStudentComplaints = (page = 1, limit = 10, status = "") =>
-    API.get(`/complaints/student/dashboard?page=${page}&limit=${limit}&status=${encodeURIComponent(status)}`);
+export const getStudentComplaints = (page = 1, limit = 10, status = "", priority = "") =>
+    API.get(`/complaints/student/dashboard?page=${page}&limit=${limit}&status=${encodeURIComponent(status)}&priority=${encodeURIComponent(priority)}`);
 export const lodgeComplaint = (formData) =>
     API.post("/complaints/student", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -70,16 +72,18 @@ export const escalateComplaint = (id) => API.put(`/complaints/student/${id}/esca
 export const submitComplaintFeedback = (id, data) => API.put(`/complaints/student/${id}/feedback`, data);
 
 // Worker Complaint Routes
-export const getWorkerComplaints = (page = 1, limit = 10, status = "") =>
-    API.get(`/complaints/worker/dashboard?page=${page}&limit=${limit}&status=${encodeURIComponent(status)}`);
+export const getWorkerComplaints = (page = 1, limit = 10, status = "", priority = "") =>
+    API.get(`/complaints/worker/dashboard?page=${page}&limit=${limit}&status=${encodeURIComponent(status)}&priority=${encodeURIComponent(priority)}`);
 export const resolveComplaint = (id, formData) =>
     API.put(`/complaints/worker/${id}/resolve`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
     });
+export const summarizeWorkerComplaints = () => API.get("/complaints/worker/summarize");
 
 // --- Announcement Routes ---
 export const getAnnouncements = () => {
     return API.get(`/announcements`);
 };
+export const summarizeAnnouncements = () => API.get("/announcements/summarize");
 
 export const createAnnouncement = (data) => API.post("/announcements", data);
