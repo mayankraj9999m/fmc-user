@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { getStudentComplaints, lodgeComplaint, escalateComplaint, submitComplaintFeedback } from "../../api";
+import { getStudentComplaints, lodgeComplaint, escalateComplaint, submitComplaintFeedback, aiAssistComplaint } from "../../api";
 import { FormRow, Input, Select, FormActions } from "../../components/FormElements/FormElements";
 import { Button } from "../../components/Buttons/Button";
 import { Table } from "../../components/Table/Table";
@@ -27,6 +27,12 @@ const StudentComplaints = () => {
     // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedComplaint, setSelectedComplaint] = useState(null);
+
+    // AI Form State
+    const [complaintMode, setComplaintMode] = useState("manual"); // 'manual' or 'ai'
+    const [aiDescriptionInput, setAiDescriptionInput] = useState("");
+    const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+    const [aiResult, setAiResult] = useState(null);
 
     // Form State
     const [file, setFile] = useState(null);
@@ -78,6 +84,53 @@ const StudentComplaints = () => {
             department: newDept,
             sub_category: subCategories.length > 0 ? subCategories[0] : "",
         });
+    };
+
+    const handleAIAssist = async (e) => {
+        e.preventDefault();
+        if (!aiDescriptionInput.trim()) {
+            return showAlert("Please describe the issue.", "error");
+        }
+        setIsGeneratingAI(true);
+        try {
+            const formData = new FormData();
+            formData.append("description", aiDescriptionInput);
+            if (file) {
+                formData.append("complaint_image", file);
+            }
+            const { data } = await aiAssistComplaint(formData);
+            setAiResult(data);
+            showAlert("AI successfully analyzed your issue. Please review and confirm.", "success");
+        } catch (err) {
+            showAlert(err.response?.data?.error || "AI assist failed.", "error");
+        } finally {
+            setIsGeneratingAI(false);
+        }
+    };
+
+    const handleLodgeAIAssisted = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        const data = new FormData();
+        data.append("department", aiResult.department);
+        data.append("sub_category", aiResult.sub_category);
+        data.append("description", aiResult.description);
+        data.append("priority_score", aiResult.priority_score);
+        if (file) data.append("complaint_image", file);
+
+        try {
+            await lodgeComplaint(data);
+            showAlert("AI-assisted Complaint lodged successfully!", "success");
+            setAiResult(null);
+            setAiDescriptionInput("");
+            setFile(null);
+            loadData();
+        } catch (err) {
+            showAlert(err.response?.data?.error || "Failed to lodge complaint.", "error");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -247,64 +300,132 @@ const StudentComplaints = () => {
             </div>
 
             <div className={styles.formSection}>
-                <h2>Lodge a New Complaint</h2>
-                <form onSubmit={handleSubmit}>
-                    <FormRow>
-                        <Select
-                            label="Department *"
-                            name="department"
-                            value={formData.department}
-                            options={Object.keys(DEPARTMENT_SUBCATEGORIES).map((e) => ({ label: e, value: e }))}
-                            onChange={handleDepartmentChange}
-                            disabled={isLoading}
-                            required
-                        />
-                        {/* Dynamic Sub-Category Input based on Selected Department */}
-                        {DEPARTMENT_SUBCATEGORIES[formData.department]?.length > 0 ? (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <h2 style={{ margin: 0 }}>Lodge a New Complaint</h2>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <Button 
+                            variant={complaintMode === "manual" ? "primary" : "remove"} 
+                            onClick={() => setComplaintMode("manual")}
+                            style={{ margin: 0, opacity: complaintMode === "manual" ? 1 : 0.6 }}
+                        >Manual</Button>
+                        <Button 
+                            variant={complaintMode === "ai" ? "primary" : "remove"} 
+                            onClick={() => setComplaintMode("ai")}
+                            style={{ margin: 0, opacity: complaintMode === "ai" ? 1 : 0.6 }}
+                        >✨ AI-assisted</Button>
+                    </div>
+                </div>
+
+                {complaintMode === "manual" ? (
+                    <form onSubmit={handleSubmit}>
+                        <FormRow>
                             <Select
-                                label="Sub Category *"
-                                value={formData.sub_category}
-                                onChange={(e) => setFormData({ ...formData, sub_category: e.target.value })}
+                                label="Department *"
+                                name="department"
+                                value={formData.department}
+                                options={Object.keys(DEPARTMENT_SUBCATEGORIES).map((e) => ({ label: e, value: e }))}
+                                onChange={handleDepartmentChange}
+                                disabled={isLoading}
                                 required
-                                disabled={isLoading}
-                                options={DEPARTMENT_SUBCATEGORIES[formData.department].map((sub) => ({
-                                    value: sub,
-                                    label: sub,
-                                }))}
                             />
-                        ) : (
+                            {/* Dynamic Sub-Category Input based on Selected Department */}
+                            {DEPARTMENT_SUBCATEGORIES[formData.department]?.length > 0 ? (
+                                <Select
+                                    label="Sub Category *"
+                                    value={formData.sub_category}
+                                    onChange={(e) => setFormData({ ...formData, sub_category: e.target.value })}
+                                    required
+                                    disabled={isLoading}
+                                    options={DEPARTMENT_SUBCATEGORIES[formData.department].map((sub) => ({
+                                        value: sub,
+                                        label: sub,
+                                    }))}
+                                />
+                            ) : (
+                                <Input
+                                    type="text"
+                                    label="Sub Category *"
+                                    placeholder="e.g., Miscellaneous"
+                                    value={formData.sub_category || ""}
+                                    onChange={(e) => setFormData({ ...formData, sub_category: e.target.value })}
+                                    disabled={isLoading}
+                                />
+                            )}
+                        </FormRow>
+                        <FormRow>
                             <Input
-                                type="text"
-                                label="Sub Category *"
-                                placeholder="e.g., Miscellaneous"
-                                value={formData.sub_category || ""}
-                                onChange={(e) => setFormData({ ...formData, sub_category: e.target.value })}
-                                disabled={isLoading}
+                                label="Description (Max 40 words) *"
+                                name="description"
+                                value={formData.description}
+                                placeholder="Briefly describe the issue..."
+                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                required
                             />
+                            <Input
+                                label="Upload Evidence (Image)"
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setFile(e.target.files[0])}
+                            />
+                        </FormRow>
+                        <FormActions>
+                            <Button type="submit" disabled={isLoading}>
+                                {isLoading ? "Submitting..." : "Submit Complaint"}
+                            </Button>
+                        </FormActions>
+                    </form>
+                ) : (
+                    <div>
+                        {!aiResult ? (
+                            <form key="ai-input-form" onSubmit={handleAIAssist}>
+                                <FormRow>
+                                    <Input
+                                        label="Describe the problem (Max 40 words) *"
+                                        name="aiDescription"
+                                        value={aiDescriptionInput}
+                                        placeholder="e.g. The fan in my room is making a loud noise and sparking..."
+                                        onChange={(e) => setAiDescriptionInput(e.target.value)}
+                                        required
+                                    />
+                                    <Input
+                                        label="Upload Evidence (Image) [Optional]"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => setFile(e.target.files[0])}
+                                    />
+                                </FormRow>
+                                <FormActions>
+                                    <Button type="submit" disabled={isGeneratingAI}>
+                                        {isGeneratingAI ? "AI is analyzing..." : "✨ Generate Details"}
+                                    </Button>
+                                </FormActions>
+                            </form>
+                        ) : (
+                            <form key="ai-review-form" onSubmit={handleLodgeAIAssisted}>
+                                <div style={{ backgroundColor: 'var(--bg-dark, #f4f4f5)', padding: '15px', borderRadius: '8px', marginBottom: '15px', color: '#333' }}>
+                                    <h3 style={{ marginTop: 0 }}>Review AI Suggestions</h3>
+                                    <p><strong>Department:</strong> {aiResult.department}</p>
+                                    <p><strong>Sub Category:</strong> {aiResult.sub_category}</p>
+                                    <p><strong>Refined Description:</strong> {aiResult.description}</p>
+                                    <p><strong>Priority Score:</strong> <span style={{ fontWeight: 'bold', color: aiResult.priority_score === 'High' ? '#dc2626' : aiResult.priority_score === 'Medium' ? '#d97706' : '#16a34a'}}>{aiResult.priority_score}</span></p>
+                                    {file && <p><strong>Image Evidence:</strong> Attached</p>}
+                                </div>
+                                <FormActions>
+                                    <Button type="button" variant="remove" onClick={(e) => {
+                                        // e.preventDefault();
+                                        // e.stopPropagation();
+                                        setAiResult(null);
+                                    }} disabled={isLoading}>
+                                        Edit / Retry
+                                    </Button>
+                                    <Button type="submit" disabled={isLoading}>
+                                        {isLoading ? "Submitting..." : "Confirm & Lodge Complaint"}
+                                    </Button>
+                                </FormActions>
+                            </form>
                         )}
-                    </FormRow>
-                    <FormRow>
-                        <Input
-                            label="Description (Max 40 words) *"
-                            name="description"
-                            value={formData.description}
-                            placeholder="Briefly describe the issue..."
-                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            required
-                        />
-                        <Input
-                            label="Upload Evidence (Image)"
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => setFile(e.target.files[0])}
-                        />
-                    </FormRow>
-                    <FormActions>
-                        <Button type="submit" disabled={isLoading}>
-                            {isLoading ? "Submitting..." : "Submit Complaint"}
-                        </Button>
-                    </FormActions>
-                </form>
+                    </div>
+                )}
             </div>
 
             <div

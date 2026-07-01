@@ -62,6 +62,10 @@ export const lodgeComplaint = (formData) =>
     API.post("/complaints/student", formData, {
         headers: { "Content-Type": "multipart/form-data" },
     });
+export const aiAssistComplaint = (formData) =>
+    API.post("/complaints/student/ai-assist", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
 export const escalateComplaint = (id) => API.put(`/complaints/student/${id}/escalate`);
 export const submitComplaintFeedback = (id, data) => API.put(`/complaints/student/${id}/feedback`, data);
 
